@@ -1,0 +1,57 @@
+[package]
+name = "tfn-tests"
+version = "0.0.1"
+authors = [ "DrDelphi",]
+edition = "2018"
+publish = false
+
+[lib]
+path = "tests.rs"
+
+[dev-dependencies]
+num-bigint = "0.4.2"
+
+[dependencies.multiversx-sc]
+version = "0.54.4"
+
+[dev-dependencies.multiversx-sc-scenario]
+version = "0.54.4"
+
+[dependencies]
+multiversx-sc-scenario = "0.54.4"
+
+[dependencies.tfn-dao]
+path = "../tfn-dao-rs"
+
+[dependencies.tfn-dex]
+path = "../tfn-dex-rs"
+
+[dependencies.tfn-platform]
+path = "../tfn-platform-rs"
+
+[dependencies.tfn-franchise-dao]
+path = "../tfn-franchise-dao-rs"
+
+[dependencies.tfn-employee]
+path = "../tfn-employee-rs"
+
+[dependencies.tfn-student]
+path = "../tfn-student-rs"
+
+[dependencies.tfn-launchpad]
+path = "../tfn-launchpad-rs"
+
+[dependencies.tfn-staking]
+path = "../tfn-staking-rs"
+
+[dependencies.tfn-test-dex]
+path = "../tfn-test-dex-rs"
+
+[dependencies.tfn-test-launchpad]
+path = "../tfn-test-launchpad-rs"
+
+[dependencies.tfn-test-staking]
+path = "../tfn-test-staking-rs"
+
+[dependencies.tfn-nft-marketplace]
+path = "../tfn-nft-marketplace-rs"
