@@ -1,10 +1,10 @@
 mod consts;
-mod contract_setup;
+mod contracts_setup;
 mod dao_tests;
 
 use multiversx_sc_scenario::DebugApi;
 
-use crate::contract_setup::TFNContractSetup;
+use crate::contracts_setup::TFNContractSetup;
 
 #[test]
 fn init_test() {
