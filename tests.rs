@@ -1,6 +1,8 @@
-mod consts;
-mod contracts_setup;
-mod dao_tests;
+#[cfg(test)]
+
+mod dao_multisig_tests;
+pub mod contracts_setup;
+pub mod consts;
 
 use multiversx_sc_scenario::{rust_biguint, num_bigint, DebugApi};
 
@@ -11,7 +13,7 @@ use std::ops::Mul;
 #[test]
 fn init_test() {
     DebugApi::dummy();
-    let mut sc_setup = TFNContractSetup::new(
+    let _ = TFNContractSetup::new(
         tfn_dao::contract_obj,
         tfn_dex::contract_obj,
         tfn_platform::contract_obj,

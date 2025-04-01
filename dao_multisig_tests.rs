@@ -1,5 +1,5 @@
 use multiversx_sc_scenario::{managed_address, rust_biguint, DebugApi};
-use tfn_dao::{common::errors::*, multisig::MultisigModule, TFNDAOContract};
+use tfn_dao::{common::errors::*, multisig::MultisigModule};
 
 use crate::{contracts_setup::TFNContractSetup, *};
 
@@ -23,21 +23,25 @@ fn dao_add_new_board_member_test() {
     );
     let new_board_member = sc_setup.setup_new_user(1u64);
     let mut action_id: usize = 0;
+    // new member propose add new board member - should fail
     sc_setup.blockchain_wrapper
         .execute_tx(&new_board_member, &sc_setup.dao_wrapper, &big_zero, |sc| {
             sc.propose_add_board_member(managed_address!(&new_board_member));
         })
         .assert_user_error(err2str(ERROR_ONLY_BOARD_MEMBERS));
+    // owner propose add new board member
     sc_setup.blockchain_wrapper
         .execute_tx(&sc_setup.owner, &sc_setup.dao_wrapper, &big_zero, |sc| {
             action_id = sc.propose_add_board_member(managed_address!(&new_board_member));
         })
         .assert_ok();
+    // perform action - add new board member
     sc_setup.blockchain_wrapper
         .execute_tx(&sc_setup.owner, &sc_setup.dao_wrapper, &big_zero, |sc| {
             sc.perform_action(action_id);
         })
         .assert_ok();
+    // propose add new board member again - should fail
     sc_setup.blockchain_wrapper
         .execute_tx(&new_board_member, &sc_setup.dao_wrapper, &big_zero, |sc| {
             sc.propose_add_board_member(managed_address!(&new_board_member));
@@ -66,22 +70,25 @@ fn test_add_member_and_change_board_quorum_test() {
     let new_board_member = sc_setup.setup_new_user(1u64);
     let new_quorum = 2;
     let mut action_id: usize = 0;
+    // add new board member
     sc_setup.blockchain_wrapper
         .execute_tx(&sc_setup.owner, &sc_setup.dao_wrapper, &big_zero, |sc| {
             action_id = sc.propose_add_board_member(managed_address!(&new_board_member));
         })
         .assert_ok();
+    // perform action - add new board member
     sc_setup.blockchain_wrapper
         .execute_tx(&sc_setup.owner, &sc_setup.dao_wrapper, &big_zero, |sc| {
             sc.perform_action(action_id);
         })
         .assert_ok();
-
+    // propose change board quorum
     sc_setup.blockchain_wrapper
         .execute_tx(&new_board_member, &sc_setup.dao_wrapper, &big_zero, |sc| {
             action_id = sc.propose_change_board_quorum(new_quorum);
         })
         .assert_ok();
+    // perform action - change board quorum
     sc_setup.blockchain_wrapper
         .execute_tx(&new_board_member, &sc_setup.dao_wrapper, &big_zero, |sc| {
             sc.perform_action(action_id);
@@ -109,11 +116,13 @@ fn test_change_board_quorum_fail_test() {
     );
     let new_quorum = 2;
     let mut action_id: usize = 0;
+    // propose change board quorum - should fail since we only have one board member (the owner)
     sc_setup.blockchain_wrapper
         .execute_tx(&sc_setup.owner, &sc_setup.dao_wrapper, &big_zero, |sc| {
             action_id = sc.propose_change_board_quorum(new_quorum);
         })
         .assert_user_error(err2str(ERROR_QUORUM_TOO_HIGH));
+    // perform action - should fail since the proposal was not successful
     sc_setup.blockchain_wrapper
         .execute_tx(&sc_setup.owner, &sc_setup.dao_wrapper, &big_zero, |sc| {
             sc.perform_action(action_id);
@@ -140,6 +149,7 @@ fn test_remove_last_board_member_fail_test() {
         tfn_nft_marketplace::contract_obj,
     );
     let owner = sc_setup.owner.clone();
+    // propose remove board member - should fail since we only have one board member (the owner)
     sc_setup.blockchain_wrapper
         .execute_tx(&sc_setup.owner, &sc_setup.dao_wrapper, &big_zero, |sc| {
             sc.propose_remove_user(managed_address!(&owner));
@@ -175,6 +185,7 @@ fn test_board_quorum_decrease_test() {
             action_id = sc.propose_add_board_member(managed_address!(&new_board_member));
         })
         .assert_ok();
+    // perform action - add new board member
     sc_setup.blockchain_wrapper
         .execute_tx(&sc_setup.owner, &sc_setup.dao_wrapper, &big_zero, |sc| {
             sc.perform_action(action_id);
@@ -186,42 +197,46 @@ fn test_board_quorum_decrease_test() {
             action_id = sc.propose_change_board_quorum(new_quorum);
         })
         .assert_ok();
+    // perform action - change board quorum
     sc_setup.blockchain_wrapper
         .execute_tx(&new_board_member, &sc_setup.dao_wrapper, &big_zero, |sc| {
             sc.perform_action(action_id);
         })
         .assert_ok();
-    // propose remove both members
+    // propose remove new board member
     sc_setup.blockchain_wrapper
         .execute_tx(&sc_setup.owner, &sc_setup.dao_wrapper, &big_zero, |sc| {
             action_id = sc.propose_remove_user(managed_address!(&new_board_member));
         })
         .assert_ok();
+    // propose remove board member (the owner)
     sc_setup.blockchain_wrapper
         .execute_tx(&sc_setup.owner, &sc_setup.dao_wrapper, &big_zero, |sc| {
             action2_id = sc.propose_remove_user(managed_address!(&owner));
         })
         .assert_ok();
-    // perform remove actions. second should fail
+    // perform action - remove new board member
     sc_setup.blockchain_wrapper
         .execute_tx(&sc_setup.owner, &sc_setup.dao_wrapper, &big_zero, |sc| {
             sc.perform_action(action_id);
         })
         .assert_ok();
+    // perform action - remove owner should fail since we are left with only one board member
     sc_setup.blockchain_wrapper
         .execute_tx(&sc_setup.owner, &sc_setup.dao_wrapper, &big_zero, |sc| {
             sc.perform_action(action2_id);
         })
         .assert_user_error(err2str(ERROR_LAST_BOARD_MEMBER));
-    // unsign and discard second action
+    // unsign second action
     sc_setup.blockchain_wrapper
         .execute_tx(&sc_setup.owner, &sc_setup.dao_wrapper, &big_zero, |sc| {
             sc.unsign(action2_id);
         })
         .assert_ok();
+    // discard second action
     sc_setup.blockchain_wrapper
         .execute_tx(&sc_setup.owner, &sc_setup.dao_wrapper, &big_zero, |sc| {
             sc.discard_action(action2_id);
         })
         .assert_ok();
-    }
+}
