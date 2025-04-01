@@ -2,9 +2,11 @@ mod consts;
 mod contracts_setup;
 mod dao_tests;
 
-use multiversx_sc_scenario::DebugApi;
+use multiversx_sc_scenario::{rust_biguint, num_bigint, DebugApi};
 
 use crate::contracts_setup::TFNContractSetup;
+
+use std::ops::Mul;
 
 #[test]
 fn init_test() {
@@ -23,4 +25,12 @@ fn init_test() {
         tfn_test_dex::contract_obj,
         tfn_nft_marketplace::contract_obj,
     );
+}
+
+pub fn err2str(err: &[u8]) -> &str {
+    &(std::str::from_utf8(err).unwrap())
+}
+
+pub fn exp18(value: u64) -> num_bigint::BigUint {
+    value.mul(rust_biguint!(10).pow(18))
 }
