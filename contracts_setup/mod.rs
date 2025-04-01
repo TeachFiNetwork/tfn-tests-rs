@@ -1,6 +1,6 @@
 use multiversx_sc::types::Address;
 use multiversx_sc_scenario::{
-    managed_address, managed_biguint, managed_token_id, rust_biguint, testing_framework::*, DebugApi
+    managed_address, managed_token_id, rust_biguint, testing_framework::*, DebugApi
 };
 
 use tfn_dao::{TFNDAOContract, common::config::ConfigModule as _};
@@ -140,7 +140,7 @@ where
         // set quorum
         blockchain_wrapper
             .execute_tx(&owner_address, &dao_wrapper, &big_zero, |sc| {
-                sc.set_quorum(&managed_biguint!(DAO_QUORUM).pow(18));
+                sc.set_quorum(&exp18(DAO_QUORUM).sqrt().into());
             })
             .assert_ok();
 
