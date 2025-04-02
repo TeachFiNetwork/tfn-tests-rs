@@ -156,6 +156,19 @@ where
         self.handle_error(&result, err);
     }
 
+    pub fn launchpad_cancel_launchpad(
+        &mut self,
+        caller: &Address,
+        launchpad_id: u64,
+        err: Option<&[u8]>,
+    ) {
+        let result = self.blockchain_wrapper
+            .execute_tx(caller, &self.launchpad_wrapper, &rust_biguint!(0u64), |sc| {
+                sc.cancel_launchpad(launchpad_id);
+            });
+        self.handle_error(&result, err);
+    }
+
     // checks
     pub fn launchpad_check_state(
         &mut self,

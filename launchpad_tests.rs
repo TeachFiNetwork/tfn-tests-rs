@@ -118,6 +118,8 @@ fn launchpad_buy_launchpad_with_kyc_test() {
     sc_setup.launchpad_whitelist_user(&owner, launchpad_id, &owner, None);
     // buy
     sc_setup.launchpad_buy(&owner, launchpad_id, DAO_GOVERNANCE_TOKEN_ID, &payment_to_send, None);
+    // cancel launchpad should fail since someone already participated
+    sc_setup.launchpad_cancel_launchpad(&owner, launchpad_id, Some(ERROR_DELETING_LAUNCHPAD));
     // check balances
     sc_setup.blockchain_wrapper.check_esdt_balance(&owner, FRANCHISE1_GOVERNANCE_TOKEN_ID.as_bytes(), &tokens_to_buy);
     sc_setup.blockchain_wrapper.check_esdt_balance(&launchpad_address, DAO_GOVERNANCE_TOKEN_ID.as_bytes(), &payment_to_send);
@@ -129,4 +131,44 @@ fn launchpad_buy_launchpad_with_kyc_test() {
     // check franchise balances
     sc_setup.blockchain_wrapper.check_esdt_balance(&franchise_address, DAO_GOVERNANCE_TOKEN_ID.as_bytes(), &payment_to_send);
     sc_setup.blockchain_wrapper.check_esdt_balance(&franchise_address, FRANCHISE1_GOVERNANCE_TOKEN_ID.as_bytes(), &(amount_to_sell - tokens_to_buy));
+}
+
+#[test]
+fn launchpad_cancel_test() {
+    DebugApi::dummy();
+    let mut sc_setup = TFNContractSetup::new(
+        tfn_dao::contract_obj,
+        tfn_dex::contract_obj,
+        tfn_platform::contract_obj,
+        tfn_franchise_dao::contract_obj,
+        tfn_employee::contract_obj,
+        tfn_student::contract_obj,
+        tfn_launchpad::contract_obj,
+        tfn_staking::contract_obj,
+        tfn_test_launchpad::contract_obj,
+        tfn_test_staking::contract_obj,
+        tfn_test_dex::contract_obj,
+        tfn_nft_marketplace::contract_obj,
+    );
+    let dao_address = sc_setup.dao_wrapper.address_ref().clone();
+    let owner = sc_setup.owner.clone();
+    // new launchpad
+    let launchpad_id = sc_setup.launchpad_new_launchpad(
+        &dao_address,
+        &owner,
+        "Launchpad proposal description",
+        true,
+        FRANCHISE1_GOVERNANCE_TOKEN_ID,
+        DAO_GOVERNANCE_TOKEN_ID,
+        &rust_biguint!(5).pow(18),
+        &exp18(10),
+        &exp18(100),
+        1,
+        2,
+        None,
+    );
+    // cancel launchpad
+    sc_setup.launchpad_cancel_launchpad(&owner, launchpad_id, None);
+    // check launchpad removed
+    sc_setup.launchpad_check_last_launchpad_id(0);
 }
