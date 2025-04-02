@@ -1,7 +1,7 @@
-use multiversx_sc_scenario::DebugApi;
+use multiversx_sc_scenario::{rust_biguint, DebugApi};
 
-use tfn_dex::common::errors::*;
-use crate::{consts::*, contracts_interactions::common::exp18, contracts_setup::TFNContractSetup};
+use tfn_dex::common::{consts::MAX_PERCENT, errors::*};
+use crate::{consts::*, contracts_interactions::common::{err2str, exp18}, contracts_setup::TFNContractSetup};
 
 #[test]
 fn dex_create_pair_test() {
@@ -31,7 +31,7 @@ fn dex_create_pair_test() {
 }
 
 #[test]
-fn dex_add_liquidity_test() {
+fn dex_liquidity_test() {
     DebugApi::dummy();
     let mut sc_setup = TFNContractSetup::new(
         tfn_dao::contract_obj,
@@ -48,24 +48,102 @@ fn dex_add_liquidity_test() {
         tfn_nft_marketplace::contract_obj,
     );
     let owner = sc_setup.owner.clone();
+    let user = sc_setup.setup_new_user(1u64);
     let token_amount = exp18(100);
     let base_token_amount = exp18(1000);
     sc_setup.blockchain_wrapper.set_esdt_balance(&owner, DAO_GOVERNANCE_TOKEN_ID.as_bytes(), &base_token_amount);
     sc_setup.blockchain_wrapper.set_esdt_balance(&owner, FRANCHISE1_GOVERNANCE_TOKEN_ID.as_bytes(), &token_amount);
+    sc_setup.blockchain_wrapper.set_esdt_balance(&user, DAO_GOVERNANCE_TOKEN_ID.as_bytes(), &base_token_amount);
+    sc_setup.blockchain_wrapper.set_esdt_balance(&user, FRANCHISE1_GOVERNANCE_TOKEN_ID.as_bytes(), &token_amount);
     // create pair - should fail since FRANCHISE1_GOVERNANCE_TOKEN_ID is not registered as base token
     sc_setup.dex_create_pair( &owner, DAO_GOVERNANCE_TOKEN_ID, FRANCHISE1_GOVERNANCE_TOKEN_ID, 18, Some(ERROR_WRONG_BASE_TOKEN));
     // create pair
     sc_setup.dex_create_pair( &owner, FRANCHISE1_GOVERNANCE_TOKEN_ID, DAO_GOVERNANCE_TOKEN_ID, 18, None);
-    // add liquidity
+    // add initial liquidity should fail - only owner can add initial liquidity and set the price
+    sc_setup.dex_add_liquidity(
+        &user,
+        FRANCHISE1_GOVERNANCE_TOKEN_ID,
+        &token_amount,
+        DAO_GOVERNANCE_TOKEN_ID,
+        &base_token_amount,
+        Some(ERROR_ONLY_OWNER_OR_LAUNCHPAD),
+    );
+    // add initial liquidity
     sc_setup.dex_add_liquidity(
         &owner,
         FRANCHISE1_GOVERNANCE_TOKEN_ID,
-        token_amount,
+        &token_amount,
         DAO_GOVERNANCE_TOKEN_ID,
-        base_token_amount.clone(),
+        &base_token_amount,
         None,
     );
     // check lp received
     let lp_token = sc_setup.dex_get_pair_lp_token_by_tickers(FRANCHISE1_GOVERNANCE_TOKEN_ID, DAO_GOVERNANCE_TOKEN_ID);
     sc_setup.blockchain_wrapper.check_esdt_balance(&owner, lp_token.as_slice(), &base_token_amount);
+    // remove liquidity
+    sc_setup.dex_remove_liquidity(
+        &owner,
+        err2str(lp_token.as_slice()),
+        &base_token_amount,
+        None,
+    );
+    // check balances
+    sc_setup.blockchain_wrapper.check_esdt_balance(&owner, DAO_GOVERNANCE_TOKEN_ID.as_bytes(), &base_token_amount);
+    sc_setup.blockchain_wrapper.check_esdt_balance(&owner, FRANCHISE1_GOVERNANCE_TOKEN_ID.as_bytes(), &token_amount);
+}
+
+#[test]
+fn dex_swap_test() {
+    DebugApi::dummy();
+    let mut sc_setup = TFNContractSetup::new(
+        tfn_dao::contract_obj,
+        tfn_dex::contract_obj,
+        tfn_platform::contract_obj,
+        tfn_franchise_dao::contract_obj,
+        tfn_employee::contract_obj,
+        tfn_student::contract_obj,
+        tfn_launchpad::contract_obj,
+        tfn_staking::contract_obj,
+        tfn_test_launchpad::contract_obj,
+        tfn_test_staking::contract_obj,
+        tfn_test_dex::contract_obj,
+        tfn_nft_marketplace::contract_obj,
+    );
+    let owner = sc_setup.owner.clone();
+    let swap_base_amount = exp18(10);
+    let token_amount = exp18(100);
+    let base_token_amount = exp18(1000);
+    sc_setup.blockchain_wrapper.set_esdt_balance(&owner, DAO_GOVERNANCE_TOKEN_ID.as_bytes(), &(&base_token_amount + &swap_base_amount));
+    sc_setup.blockchain_wrapper.set_esdt_balance(&owner, FRANCHISE1_GOVERNANCE_TOKEN_ID.as_bytes(), &token_amount);
+    // create pair
+    sc_setup.dex_create_pair( &owner, FRANCHISE1_GOVERNANCE_TOKEN_ID, DAO_GOVERNANCE_TOKEN_ID, 18, None);
+    // add initial liquidity
+    sc_setup.dex_add_liquidity(
+        &owner,
+        FRANCHISE1_GOVERNANCE_TOKEN_ID,
+        &token_amount,
+        DAO_GOVERNANCE_TOKEN_ID,
+        &base_token_amount,
+        None,
+    );
+    // set pair active
+    let pair_id = sc_setup.dex_get_pair_id_by_tickers(FRANCHISE1_GOVERNANCE_TOKEN_ID, DAO_GOVERNANCE_TOKEN_ID);
+    sc_setup.dex_set_pair_active(&owner, pair_id.unwrap(), None);
+    // set owner fee
+    let new_fee = 100;
+    sc_setup.dex_set_owner_fee(&owner, new_fee, None);
+    // swap fixed input
+    sc_setup.dex_swap_fixed_input(
+        &owner,
+        DAO_GOVERNANCE_TOKEN_ID,
+        &swap_base_amount,
+        FRANCHISE1_GOVERNANCE_TOKEN_ID,
+        &(&swap_base_amount / rust_biguint!(20)),
+        None,
+    );
+    // check balances
+    sc_setup.blockchain_wrapper.check_esdt_balance(&owner, FRANCHISE1_GOVERNANCE_TOKEN_ID.as_bytes(), &rust_biguint!(980295078720665412));
+    // check cummulated fees
+    let expected_fees: Vec<(Vec<u8>, num_bigint::BigUint)> = vec![(DAO_GOVERNANCE_TOKEN_ID.as_bytes().to_vec(), swap_base_amount * new_fee / MAX_PERCENT)];
+    sc_setup.dex_check_cummulated_fees(expected_fees);
 }

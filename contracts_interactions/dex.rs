@@ -2,7 +2,7 @@ use multiversx_sc::types::Address;
 use multiversx_sc_scenario::{imports::TxTokenTransfer, managed_token_id, num_bigint, rust_biguint, DebugApi};
 
 use crate::contracts_setup::TFNContractSetup;
-use tfn_dex::{*, liquidity::*, common::config::*};
+use tfn_dex::{*, swap::*, liquidity::*, common::config::*};
 
 use super::common::DEFAULT_ROLES;
 
@@ -86,24 +86,112 @@ where
         &mut self,
         caller: &Address,
         token: &str,
-        token_amount: num_bigint::BigUint,
+        token_amount: &num_bigint::BigUint,
         base_token: &str,
-        base_token_amount: num_bigint::BigUint,
+        base_token_amount: &num_bigint::BigUint,
         err: Option<&[u8]>,
     ) {
         let transfers: Vec<TxTokenTransfer> = vec![
-            TxTokenTransfer { token_identifier: token.as_bytes().to_vec(), nonce: 0, value: token_amount },
-            TxTokenTransfer { token_identifier: base_token.as_bytes().to_vec(), nonce: 0, value: base_token_amount },
+            TxTokenTransfer { token_identifier: token.as_bytes().to_vec(), nonce: 0, value: token_amount.clone() },
+            TxTokenTransfer { token_identifier: base_token.as_bytes().to_vec(), nonce: 0, value: base_token_amount.clone() },
         ];
         let result = self.blockchain_wrapper
-            .execute_esdt_multi_transfer(
-                caller,
-                &self.dex_wrapper,
-                &transfers,
-                |sc| {
+            .execute_esdt_multi_transfer(caller, &self.dex_wrapper, &transfers, |sc| {
                     sc.add_liquidity();
                 },
             );
+        self.handle_error(&result, err);
+    }
+
+    pub fn dex_remove_liquidity(
+        &mut self,
+        caller: &Address,
+        lp_token: &str,
+        lp_token_amount: &num_bigint::BigUint,
+        err: Option<&[u8]>,
+    ) {
+        let result = self.blockchain_wrapper
+            .execute_esdt_transfer(caller, &self.dex_wrapper, lp_token.as_bytes(),0,lp_token_amount, |sc| {
+                    sc.remove_liquidity();
+                },
+            );
+        self.handle_error(&result, err);
+    }
+
+    pub fn dex_swap_fixed_input(
+        &mut self,
+        caller: &Address,
+        from_token: &str,
+        from_token_amount: &num_bigint::BigUint,
+        to_token: &str,
+        min_amount_out: &num_bigint::BigUint,
+        err: Option<&[u8]>,
+    ) {
+        let result = self.blockchain_wrapper
+            .execute_esdt_transfer(caller, &self.dex_wrapper, from_token.as_bytes(), 0, from_token_amount, |sc| {
+                sc.swap_fixed_input(
+                    managed_token_id!(to_token),
+                    min_amount_out.into(),
+                );
+            });
+        self.handle_error(&result, err);
+    }
+
+    pub fn dex_swap_fixed_output(
+        &mut self,
+        caller: &Address,
+        from_token: &str,
+        from_token_amount: &num_bigint::BigUint,
+        to_token: &str,
+        amount_out_wanted: &num_bigint::BigUint,
+        err: Option<&[u8]>,
+    ) {
+        let result = self.blockchain_wrapper
+            .execute_esdt_transfer(caller, &self.dex_wrapper, from_token.as_bytes(), 0, from_token_amount, |sc| {
+                sc.swap_fixed_output(
+                    managed_token_id!(to_token),
+                    amount_out_wanted.into(),
+                );
+            });
+        self.handle_error(&result, err);
+    }
+
+    pub fn dex_set_pair_active(
+        &mut self,
+        caller: &Address,
+        pair_id: usize,
+        err: Option<&[u8]>,
+    ) {
+        let result = self.blockchain_wrapper
+            .execute_tx(caller, &self.dex_wrapper, &rust_biguint!(0u64), |sc| {
+                sc.set_pair_active(pair_id);
+            });
+        self.handle_error(&result, err);
+    }
+
+    pub fn dex_set_pair_active_no_swap(
+        &mut self,
+        caller: &Address,
+        pair_id: usize,
+        err: Option<&[u8]>,
+    ) {
+        let result = self.blockchain_wrapper
+            .execute_tx(caller, &self.dex_wrapper, &rust_biguint!(0u64), |sc| {
+                sc.set_pair_active_no_swap(pair_id);
+            });
+        self.handle_error(&result, err);
+    }
+
+    pub fn dex_set_pair_inactive(
+        &mut self,
+        caller: &Address,
+        pair_id: usize,
+        err: Option<&[u8]>,
+    ) {
+        let result = self.blockchain_wrapper
+            .execute_tx(caller, &self.dex_wrapper, &rust_biguint!(0u64), |sc| {
+                sc.set_pair_inactive(pair_id);
+            });
         self.handle_error(&result, err);
     }
 
@@ -131,7 +219,51 @@ where
             .assert_ok();
     }
 
+    pub fn dex_check_cummulated_fees(
+        &mut self,
+        expected_fees: Vec<(Vec<u8>, num_bigint::BigUint)>,
+    ) {
+        self.blockchain_wrapper
+            .execute_query(&self.dex_wrapper, |sc| {
+                let mut fees = vec![];
+                for (token, amount) in sc.cummulated_fees().iter() {
+                    fees.push((token.to_boxed_bytes().as_slice().to_vec(), num_bigint::BigUint::from_bytes_be( amount.to_bytes_be().as_slice())));
+                }
+                assert_eq!(fees, expected_fees);
+            })
+            .assert_ok();
+    }
+
+    pub fn dex_set_owner_fee(
+        &mut self,
+        caller: &Address,
+        new_fee: u64,
+        err: Option<&[u8]>,
+    ) {
+        let result = self.blockchain_wrapper
+            .execute_tx(caller, &self.dex_wrapper, &rust_biguint!(0u64), |sc| {
+                sc.set_owner_fee(new_fee);
+            });
+        self.handle_error(&result, err);
+    }
+
     // views
+    pub fn dex_get_pair_id_by_tickers(
+        &mut self,
+        token: &str,
+        base_token: &str,
+    ) -> Option<usize> {
+        let mut pair_id = None;
+        self.blockchain_wrapper
+            .execute_query(&self.dex_wrapper, |sc| {
+                let id = sc.get_pair_by_tickers(&managed_token_id!(token), &managed_token_id!(base_token)).unwrap().id;
+                pair_id = Some(id)
+            })
+            .assert_ok();
+
+        pair_id
+    }
+
     pub fn dex_get_pair_lp_token_by_tickers(
         &mut self,
         token: &str,
