@@ -1,3 +1,5 @@
+#![allow(clippy::too_many_arguments)]
+
 use multiversx_sc::types::Address;
 use multiversx_sc_scenario::{managed_address, managed_buffer, managed_token_id, num_bigint, rust_biguint, DebugApi};
 

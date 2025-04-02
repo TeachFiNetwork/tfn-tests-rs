@@ -10,6 +10,9 @@ mod dao_multisig_tests;
 #[cfg(test)]
 mod launchpad_tests;
 
+#[cfg(test)]
+mod dex_tests;
+
 pub mod consts;
 pub mod contracts_setup;
 pub mod contracts_interactions;

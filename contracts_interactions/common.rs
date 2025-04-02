@@ -1,5 +1,6 @@
-use multiversx_sc::types::Address;
+use multiversx_sc::types::{Address, EsdtLocalRole};
 use multiversx_sc_scenario::{imports::TxResult, DebugApi, rust_biguint, num_bigint};
+use tfn_dex::common::consts::*;
 
 use crate::contracts_setup::TFNContractSetup;
 
@@ -66,10 +67,38 @@ where
     }
 }
 
+pub static DEFAULT_ROLES: &[EsdtLocalRole] = &[
+    EsdtLocalRole::Mint,
+    EsdtLocalRole::Burn,
+    EsdtLocalRole::Transfer,
+];
+
 pub fn err2str(err: &[u8]) -> &str {
     std::str::from_utf8(err).unwrap()
 }
 
 pub fn exp18(value: u64) -> num_bigint::BigUint {
     value.mul(rust_biguint!(10).pow(18))
+}
+
+pub fn get_lp_token_id(token: &str, base_token: &str) -> (Vec<u8>, Vec<u8>) {
+    let token_ticker = token.split("-").next().unwrap();
+    let base_token_ticker = base_token.split("-").next().unwrap();
+    let mut lp_ticker = [token_ticker, base_token_ticker].join("");
+    let prefix_suffix_len = LP_TOKEN_PREFIX.len() + LP_TOKEN_SUFFIX.len();
+    let max_ticker_len = 20 - prefix_suffix_len; 
+    if lp_ticker.len() > max_ticker_len {
+        lp_ticker = lp_ticker[..max_ticker_len].to_string();
+    }
+    let lp_name = [
+        err2str(LP_TOKEN_PREFIX),
+        err2str(lp_ticker.as_bytes()),
+        err2str(LP_TOKEN_SUFFIX)
+    ].join("");
+    if lp_ticker.len() > 10 {
+        lp_ticker = lp_ticker[..10].to_string();
+    }
+    lp_ticker = [err2str(lp_ticker.as_bytes()), "123456"].join("-").to_string();
+
+    (lp_name.as_bytes().to_vec(), lp_ticker.as_bytes().to_vec())
 }

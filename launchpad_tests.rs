@@ -58,9 +58,6 @@ fn launchpad_new_launchpad_test() {
     sc_setup.dao_check_franchise_deployed(&franchise_address);
     // check franchise subscribed on Platform
     sc_setup.platform_check_is_subscribed(&franchise_address);
-    // check tranding pair created in DEX
-    // sc_setup.dex_pair_exists_by_tickers(FRANCHISE1_GOVERNANCE_TOKEN_ID, DAO_GOVERNANCE_TOKEN_ID);
-    // sc_setup.dex_check_pairs_count(1);
 }
 
 #[test]
