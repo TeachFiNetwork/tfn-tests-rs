@@ -96,6 +96,19 @@ where
         action_id
     }
 
+    pub fn dao_sign_action(
+        &mut self,
+        caller: &Address,
+        action_id: usize,
+        err: Option<&[u8]>,
+    ) {
+        let result = self.blockchain_wrapper
+            .execute_tx(caller, &self.dao_wrapper, &rust_biguint!(0u64), |sc| {
+                sc.sign(action_id);
+            });
+        self.handle_error(&result, err);
+    }
+
     pub fn dao_unsign_action(
         &mut self,
         caller: &Address,
@@ -179,7 +192,7 @@ where
     ) {
         let result = self.blockchain_wrapper
             .execute_tx(caller, &self.dao_wrapper, &rust_biguint!(0u64), |sc| {
-                sc.perform_action(action_id);
+                sc.perform_action_endpoint(action_id);
             });
         self.handle_error(&result, err);
     }

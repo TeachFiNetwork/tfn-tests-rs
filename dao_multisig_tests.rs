@@ -141,6 +141,10 @@ fn dao_board_quorum_decrease_test() {
     action_id = sc_setup.dao_propose_remove_board_member(&owner, &new_board_member, None);
     // propose remove board member (the owner)
     let action2_id = sc_setup.dao_propose_remove_board_member(&owner, &owner, None);
+    // perform action - remove new board member should fail since we don't have quorum
+    sc_setup.dao_perform_action(&owner, action_id, Option::Some(ERROR_QUORUM_NOT_REACHED));
+    // sign action - remove new board member
+    sc_setup.dao_sign_action(&new_board_member, action_id, None);
     // perform action - remove new board member
     sc_setup.dao_perform_action(&owner, action_id, None);
     // perform action - remove owner should fail since we are left with only one board member
@@ -176,6 +180,8 @@ fn dao_add_voting_token_test() {
     let action_id = sc_setup.dao_propose_add_voting_token(&owner, FRANCHISE1_GOVERNANCE_TOKEN_ID, &weight, None);
     // perform action - add voting token
     sc_setup.dao_perform_action(&owner, action_id, None);
+    // perform same action again should fail since the action should not exist anymore
+    sc_setup.dao_perform_action(&owner, action_id, Option::Some(ERROR_ACTION_NOT_FOUND));
 }
 
 #[test]
@@ -202,4 +208,34 @@ fn dao_remove_all_voting_tokens_test() {
     sc_setup.dao_perform_action(&owner, action_id, None);
     // check if sc is disabled
     sc_setup.dao_check_state(State::Inactive);
+}
+
+#[test]
+fn dao_action_signers_test() {
+    DebugApi::dummy();
+    let mut sc_setup = TFNContractSetup::new(
+        tfn_dao::contract_obj,
+        tfn_dex::contract_obj,
+        tfn_platform::contract_obj,
+        tfn_franchise_dao::contract_obj,
+        tfn_employee::contract_obj,
+        tfn_student::contract_obj,
+        tfn_launchpad::contract_obj,
+        tfn_staking::contract_obj,
+        tfn_test_launchpad::contract_obj,
+        tfn_test_staking::contract_obj,
+        tfn_test_dex::contract_obj,
+        tfn_nft_marketplace::contract_obj,
+    );
+    let owner = sc_setup.owner.clone();
+    let new_board_member = sc_setup.setup_new_user(1u64);
+    let new_quorum = 2;
+    // add new board member
+    let mut action_id = sc_setup.dao_propose_add_board_member(&owner, &new_board_member, None);
+    // perform action - add new board member
+    sc_setup.dao_perform_action(&owner, action_id, None);
+    // change board quorum
+    action_id = sc_setup.dao_propose_change_board_quorum(&new_board_member, new_quorum, None);
+    // perform action - change board quorum
+    sc_setup.dao_perform_action(&new_board_member, action_id, None);
 }
