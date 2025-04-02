@@ -1,3 +1,5 @@
+#![allow(clippy::too_many_arguments)]
+
 use multiversx_sc::types::Address;
 use multiversx_sc_scenario::{
     managed_address, managed_token_id, rust_biguint, testing_framework::*, DebugApi
@@ -16,7 +18,7 @@ use tfn_test_staking::TFNTestStakingContract;
 use tfn_test_dex::TFNTestDEXContract;
 use tfn_nft_marketplace::TFNNFTMarketplaceContract;
 
-use crate::{consts::*, exp18};
+use crate::{consts::*, contracts_interactions::common::exp18};
 
 pub struct TFNContractSetup<
     TFNDAOContractObjBuilder,
@@ -390,18 +392,5 @@ where
             test_dex_wrapper,
             nft_marketplace_wrapper,
         }
-    }
-
-    pub fn setup_new_user(
-        &mut self,
-        egld_amount: u64
-    ) -> Address {
-        let big_zero = rust_biguint!(0);
-        let new_user = self.blockchain_wrapper.create_user_account(&big_zero);
-        
-        self.blockchain_wrapper
-            .set_egld_balance(&new_user, &exp18(egld_amount));
-        
-        new_user
     }
 }
