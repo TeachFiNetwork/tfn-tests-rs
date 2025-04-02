@@ -215,22 +215,22 @@ where
     ) -> u64 {
         let mut launchpad_id = 0;
         let result = self.blockchain_wrapper
-        .execute_tx(caller, &self.dao_wrapper, &rust_biguint!(0u64), |sc| {
-            launchpad_id = sc.propose_new_launchpad(
-                managed_buffer!(title.as_bytes()),
-                managed_buffer!(description.as_bytes()),
-                LaunchpadProposal{
-                    kyc_enforced,
-                    token: managed_token_id!(token),
-                    payment_token: managed_token_id!(payment_token),
-                    price: price.into(),
-                    min_buy_amount: min_buy_amount.into(),
-                    max_buy_amount: max_buy_amount.into(),
-                    start_time,
-                    end_time,
-                },
-            );
-        });
+            .execute_tx(caller, &self.dao_wrapper, &rust_biguint!(0u64), |sc| {
+                launchpad_id = sc.propose_new_launchpad(
+                    managed_buffer!(title.as_bytes()),
+                    managed_buffer!(description.as_bytes()),
+                    LaunchpadProposal{
+                        kyc_enforced,
+                        token: managed_token_id!(token),
+                        payment_token: managed_token_id!(payment_token),
+                        price: price.into(),
+                        min_buy_amount: min_buy_amount.into(),
+                        max_buy_amount: max_buy_amount.into(),
+                        start_time,
+                        end_time,
+                    },
+                );
+            });
         self.handle_error(&result, err);
 
         launchpad_id
@@ -323,6 +323,25 @@ where
         self.blockchain_wrapper
             .execute_query(&self.dao_wrapper, |sc| {
                 assert!(sc.last_proposal_id().get() == expected_value);
+            })
+            .assert_ok();
+    }
+
+    pub fn dao_check_franchise_deployed(
+        &mut self,
+        franchise_address: &Address,
+    ) {
+        self.blockchain_wrapper
+            .execute_query(&self.dao_wrapper, |sc| {
+                let mut found = false;
+                let franchises = sc.franchises().get();
+                for franchise in franchises.into_iter() {
+                    if &Address::new(franchise.to_byte_array()) == franchise_address {
+                        found = true;
+                        break;
+                    }
+                }
+                assert!(found);
             })
             .assert_ok();
     }

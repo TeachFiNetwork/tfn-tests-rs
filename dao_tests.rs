@@ -159,6 +159,6 @@ fn dao_execute_new_launchpad_test() {
         &exp18(100),
         start_time,
         end_time,
-        Option::Some(ERROR_TOKEN_ALREADY_LAUNCHED),
+        Some(ERROR_TOKEN_ALREADY_LAUNCHED),
     );
 }

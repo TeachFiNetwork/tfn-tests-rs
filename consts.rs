@@ -18,3 +18,5 @@ pub const PAYMENT_TOKEN_DECIMALS: u32 = 6;
 
 pub const DAO_QUORUM: u64 = 10; // 10 tokens
 pub const DAO_VOTING_PERIOD: u64 = 60 * 60 * 24; // 1 day in seconds
+
+pub const ISSUE_TOKEN_PRICE: u64 = 50_000_000_000_000_000;
