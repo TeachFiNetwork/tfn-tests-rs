@@ -12,6 +12,7 @@ pub const TEST_STAKING_WASM_PATH: &str = "../tfn-test-staking-rs/output/tfn-test
 pub const NFT_MARKETPLACE_WASM_PATH: &str = "../tfn-nft-marketplace-rs/output/tfn-nft-marketplace.wasm";
 
 pub const DAO_GOVERNANCE_TOKEN_ID: &str = "LEARN-123456";
+pub const FRANCHISE0_GOVERNANCE_TOKEN_ID: &str = "FR0-123456";
 pub const FRANCHISE1_GOVERNANCE_TOKEN_ID: &str = "FR1-123456";
 pub const PAYMENT_TOKEN_ID: &str = "USDC-123456";
 pub const PAYMENT_TOKEN_DECIMALS: u32 = 6;

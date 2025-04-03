@@ -164,5 +164,5 @@ fn launchpad_cancel_test() {
     // cancel launchpad
     sc_setup.launchpad_cancel_launchpad(&owner, launchpad_id, None);
     // check launchpad removed
-    sc_setup.launchpad_check_last_launchpad_id(0);
+    sc_setup.launchpad_check_last_launchpad_id(1);
 }

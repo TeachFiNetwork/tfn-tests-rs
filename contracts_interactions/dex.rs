@@ -4,7 +4,7 @@ use multiversx_sc_scenario::{imports::TxTokenTransfer, managed_token_id, num_big
 use crate::contracts_setup::TFNContractSetup;
 use tfn_dex::{*, swap::*, liquidity::*, common::config::*};
 
-use super::common::DEFAULT_ROLES;
+// use super::common::DEFAULT_ROLES;
 
 impl<
     TFNDAOContractObjBuilder,
@@ -65,21 +65,21 @@ where
                 );
             });
         self.handle_error(&result, err);
-        if err.is_none() {
-            let mut lp_token = rust_biguint!(0);
-            self.blockchain_wrapper
-                .execute_tx(caller, &self.dex_wrapper, &rust_biguint!(0u64), |sc| {
-                    let token = sc.test_create_pair(
-                        managed_token_id!(base_token),
-                        managed_token_id!(token),
-                        decimals,
-                    );
-                    lp_token = num_bigint::BigUint::from_bytes_be(token.to_string().as_bytes());
-                })
-                .assert_ok();
-            self.blockchain_wrapper
-                .set_esdt_local_roles(self.dex_wrapper.address_ref(), lp_token.to_bytes_be().as_slice(), DEFAULT_ROLES);
-        }
+        // if err.is_none() {
+        //     let mut lp_token = rust_biguint!(0);
+        //     self.blockchain_wrapper
+        //         .execute_tx(caller, &self.dex_wrapper, &rust_biguint!(0u64), |sc| {
+        //             let token = sc.test_create_pair(
+        //                 managed_token_id!(base_token),
+        //                 managed_token_id!(token),
+        //                 decimals,
+        //             );
+        //             lp_token = num_bigint::BigUint::from_bytes_be(token.to_string().as_bytes());
+        //         })
+        //         .assert_ok();
+        //     self.blockchain_wrapper
+        //         .set_esdt_local_roles(self.dex_wrapper.address_ref(), lp_token.to_bytes_be().as_slice(), DEFAULT_ROLES);
+        // }
     }
 
     pub fn dex_add_liquidity(

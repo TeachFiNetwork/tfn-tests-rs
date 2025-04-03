@@ -22,8 +22,9 @@ fn test_dex_create_pair_test() {
         tfn_nft_marketplace::contract_obj,
     );
     let owner = sc_setup.owner.clone();
+    let franchise_address = sc_setup.franchise_dao_wrapper.address_ref().clone();
     // whitelist owner
-    sc_setup.platform_whitelist_address(&owner, &owner, None);
+    sc_setup.platform_whitelist_address(&franchise_address, &owner, None);
     // create pair - should fail since FRANCHISE1_GOVERNANCE_TOKEN_ID is not registered as base token
     sc_setup.test_dex_create_pair( 
         &owner,
@@ -66,7 +67,7 @@ fn test_dex_liquidity_test() {
         tfn_test_dex::contract_obj,
         tfn_nft_marketplace::contract_obj,
     );
-    let owner = sc_setup.owner.clone();
+    let owner = sc_setup.student_wrapper.address_ref().clone();
     let user = sc_setup.setup_new_user(1u64);
     let token_amount = exp18(100);
     let base_token_amount = exp18(1000);
@@ -74,8 +75,6 @@ fn test_dex_liquidity_test() {
     sc_setup.blockchain_wrapper.set_esdt_balance(&owner, FRANCHISE1_GOVERNANCE_TOKEN_ID.as_bytes(), &token_amount);
     sc_setup.blockchain_wrapper.set_esdt_balance(&user, DAO_GOVERNANCE_TOKEN_ID.as_bytes(), &base_token_amount);
     sc_setup.blockchain_wrapper.set_esdt_balance(&user, FRANCHISE1_GOVERNANCE_TOKEN_ID.as_bytes(), &token_amount);
-    // whitelist owner
-    sc_setup.platform_whitelist_address(&owner, &owner, None);
     // create pair
     sc_setup.test_dex_create_pair( 
         &owner,
@@ -136,14 +135,12 @@ fn test_dex_swap_fixed_input_test() {
         tfn_test_dex::contract_obj,
         tfn_nft_marketplace::contract_obj,
     );
-    let owner = sc_setup.owner.clone();
+    let owner = sc_setup.student_wrapper.address_ref().clone();
     let swap_base_amount = exp18(10);
     let token_amount = exp18(100);
     let base_token_amount = exp18(1000);
     sc_setup.blockchain_wrapper.set_esdt_balance(&owner, DAO_GOVERNANCE_TOKEN_ID.as_bytes(), &(&base_token_amount + &swap_base_amount));
     sc_setup.blockchain_wrapper.set_esdt_balance(&owner, FRANCHISE1_GOVERNANCE_TOKEN_ID.as_bytes(), &token_amount);
-    // whitelist owner
-    sc_setup.platform_whitelist_address(&owner, &owner, None);
     // create pair
     sc_setup.test_dex_create_pair( 
         &owner,
@@ -206,14 +203,12 @@ fn test_dex_swap_fixed_output_test() {
         tfn_test_dex::contract_obj,
         tfn_nft_marketplace::contract_obj,
     );
-    let owner = sc_setup.owner.clone();
+    let owner = sc_setup.student_wrapper.address_ref().clone();
     let token_amount_wanted = exp18(1);
     let token_amount = exp18(100);
     let base_token_amount = exp18(1000);
     sc_setup.blockchain_wrapper.set_esdt_balance(&owner, DAO_GOVERNANCE_TOKEN_ID.as_bytes(), &base_token_amount);
     sc_setup.blockchain_wrapper.set_esdt_balance(&owner, FRANCHISE1_GOVERNANCE_TOKEN_ID.as_bytes(), &token_amount);
-    // whitelist owner
-    sc_setup.platform_whitelist_address(&owner, &owner, None);
     // create pair
     sc_setup.test_dex_create_pair( 
         &owner,

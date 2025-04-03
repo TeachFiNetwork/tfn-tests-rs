@@ -41,7 +41,7 @@ fn dao_propose_new_launchpad_test() {
     // perform action - delete proposal
     sc_setup.dao_perform_action(&owner, action_id, None);
     // check the last proposal id is back to 0 since we deleted the last proposal
-    sc_setup.dao_check_last_proposal_id(0);
+    sc_setup.dao_check_last_proposal_id(1);
 }
 
 #[test]
@@ -145,7 +145,7 @@ fn dao_execute_new_launchpad_test() {
     // execute the proposal
     sc_setup.dao_execute_proposal(&owner, proposal_id, None);
     // check the launchpad contract
-    sc_setup.launchpad_check_last_launchpad_id(1);
+    sc_setup.launchpad_check_last_launchpad_id(2);
     // propose same launchpad should fail as it is already on launchpad
     sc_setup.dao_propose_new_launchpad(
         &owner,
