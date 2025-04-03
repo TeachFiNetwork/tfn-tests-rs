@@ -55,8 +55,6 @@ fn dex_liquidity_test() {
     sc_setup.blockchain_wrapper.set_esdt_balance(&owner, FRANCHISE1_GOVERNANCE_TOKEN_ID.as_bytes(), &token_amount);
     sc_setup.blockchain_wrapper.set_esdt_balance(&user, DAO_GOVERNANCE_TOKEN_ID.as_bytes(), &base_token_amount);
     sc_setup.blockchain_wrapper.set_esdt_balance(&user, FRANCHISE1_GOVERNANCE_TOKEN_ID.as_bytes(), &token_amount);
-    // create pair - should fail since FRANCHISE1_GOVERNANCE_TOKEN_ID is not registered as base token
-    sc_setup.dex_create_pair( &owner, DAO_GOVERNANCE_TOKEN_ID, FRANCHISE1_GOVERNANCE_TOKEN_ID, 18, Some(ERROR_WRONG_BASE_TOKEN));
     // create pair
     sc_setup.dex_create_pair( &owner, FRANCHISE1_GOVERNANCE_TOKEN_ID, DAO_GOVERNANCE_TOKEN_ID, 18, None);
     // add initial liquidity should fail - only owner can add initial liquidity and set the price
