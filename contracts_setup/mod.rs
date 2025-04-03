@@ -6,12 +6,12 @@ use multiversx_sc_scenario::{
 };
 
 use tfn_dao::{TFNDAOContract, common::config::ConfigModule as _};
-use tfn_dex::{TFNDEXContract, common::config::ConfigModule as _};
+use tfn_dex::TFNDEXContract;
 use tfn_platform::{TFNPlatformContract, common::config::ConfigModule as _};
 use tfn_franchise_dao::TFNFranchiseDAOContract;
 use tfn_employee::TFNEmployeeContract;
 use tfn_student::TFNStudentContract;
-use tfn_launchpad::TFNLaunchpadContract;
+use tfn_launchpad::{TFNLaunchpadContract, common::config::ConfigModule as _};
 use tfn_staking::TFNStakingContract;
 use tfn_test_launchpad::TFNTestLaunchpadContract;
 use tfn_test_staking::TFNTestStakingContract;
@@ -316,10 +316,7 @@ where
         // init launchpad
         blockchain_wrapper
             .execute_tx(&owner_address, &launchpad_wrapper, &big_zero, |sc| {
-                sc.init(
-                    managed_address!(dao_wrapper.address_ref()),
-                    managed_address!(dex_wrapper.address_ref()),
-                )
+                sc.init()
             })
             .assert_ok();
 
@@ -356,24 +353,19 @@ where
             })
             .assert_ok();
 
-        // activate DEX
+        // activate launchpad
         blockchain_wrapper
-            .execute_tx(&owner_address, &dex_wrapper, &big_zero, |sc| {
-                sc.set_launchpad_address(managed_address!(launchpad_wrapper.address_ref()));
+            .execute_tx(&owner_address, &launchpad_wrapper, &big_zero, |sc| {
+                sc.set_dex(managed_address!(dex_wrapper.address_ref()));
             })
             .assert_ok();
         blockchain_wrapper
-            .execute_tx(&owner_address, &dex_wrapper, &big_zero, |sc| {
+            .execute_tx(&owner_address, &launchpad_wrapper, &big_zero, |sc| {
                 sc.set_state_active();
             })
             .assert_ok();
 
         // activate platform
-        blockchain_wrapper
-            .execute_tx(&owner_address, &platform_wrapper, &big_zero, |sc| {
-                sc.set_main_dao(managed_address!(dao_wrapper.address_ref()));
-            })
-            .assert_ok();
         blockchain_wrapper
             .execute_tx(&owner_address, &platform_wrapper, &big_zero, |sc| {
                 sc.set_state_active();

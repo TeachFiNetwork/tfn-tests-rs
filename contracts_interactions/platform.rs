@@ -79,6 +79,19 @@ where
         self.handle_error(&result, err);
     }
 
+    pub fn platform_remove_address(
+        &mut self,
+        caller: &Address,
+        user: &Address,
+        err: Option<&[u8]>,
+    ) {
+        let result = self.blockchain_wrapper
+            .execute_tx(caller, &self.platform_wrapper, &rust_biguint!(0u64), |sc| {
+                sc.remove_address(managed_address!(user));
+            });
+        self.handle_error(&result, err);
+    }
+
     // checks
     pub fn platform_check_is_subscribed(
         &mut self,

@@ -11,6 +11,9 @@ mod dao_multisig_tests;
 mod launchpad_tests;
 
 #[cfg(test)]
+mod platform_tests;
+
+#[cfg(test)]
 mod dex_tests;
 
 #[cfg(test)]
