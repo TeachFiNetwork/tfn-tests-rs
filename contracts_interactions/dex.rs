@@ -279,4 +279,38 @@ where
 
         lp_token.to_bytes_be()
     }
+
+    pub fn dex_get_amount_out(
+        &mut self,
+        token: &str,
+        base_token: &str,
+        amount_in: &num_bigint::BigUint,
+    ) -> num_bigint::BigUint {
+        let mut amount_out = rust_biguint!(0);
+        self.blockchain_wrapper
+            .execute_query(&self.dex_wrapper, |sc| {
+                let amount = sc.get_amount_out_view(&managed_token_id!(token), &managed_token_id!(base_token), amount_in.into());
+                amount_out = num_bigint::BigUint::from_bytes_be(amount.to_bytes_be().as_slice());
+            })
+            .assert_ok();
+
+        amount_out
+    }
+
+    pub fn dex_get_amount_in(
+        &mut self,
+        token: &str,
+        base_token: &str,
+        amount_out: &num_bigint::BigUint,
+    ) -> num_bigint::BigUint {
+        let mut amount_in = rust_biguint!(0);
+        self.blockchain_wrapper
+            .execute_query(&self.dex_wrapper, |sc| {
+                let amount = sc.get_amount_in_view(&managed_token_id!(token), &managed_token_id!(base_token), amount_out.into());
+                amount_in = num_bigint::BigUint::from_bytes_be(amount.to_bytes_be().as_slice());
+            })
+            .assert_ok();
+
+        amount_in
+    }
 }
