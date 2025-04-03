@@ -1,7 +1,7 @@
 use multiversx_sc_scenario::{rust_biguint, DebugApi};
 
 use tfn_dex::common::{consts::MAX_PERCENT, errors::*};
-use crate::{consts::*, contracts_interactions::common::{err2str, exp18}, contracts_setup::TFNContractSetup};
+use crate::{consts::*, contracts_interactions::common::*, contracts_setup::TFNContractSetup};
 
 #[test]
 fn dex_create_pair_test() {
@@ -130,8 +130,7 @@ fn dex_swap_fixed_input_test() {
     let pair_id = sc_setup.dex_get_pair_id_by_tickers(FRANCHISE1_GOVERNANCE_TOKEN_ID, DAO_GOVERNANCE_TOKEN_ID);
     sc_setup.dex_set_pair_active(&owner, pair_id.unwrap(), None);
     // set owner fee
-    let new_fee = 100;
-    sc_setup.dex_set_owner_fee(&owner, new_fee, None);
+    sc_setup.dex_set_owner_fee(&owner, OWNER_FEE, None);
     // swap fixed input
     let amount_out = sc_setup.dex_get_amount_out(DAO_GOVERNANCE_TOKEN_ID, FRANCHISE1_GOVERNANCE_TOKEN_ID, &swap_base_amount);
     sc_setup.dex_swap_fixed_input(
@@ -145,7 +144,7 @@ fn dex_swap_fixed_input_test() {
     // check balances
     sc_setup.blockchain_wrapper.check_esdt_balance(&owner, FRANCHISE1_GOVERNANCE_TOKEN_ID.as_bytes(), &amount_out);
     // check cummulated fees
-    let expected_fees: Vec<(Vec<u8>, num_bigint::BigUint)> = vec![(DAO_GOVERNANCE_TOKEN_ID.as_bytes().to_vec(), swap_base_amount * new_fee / MAX_PERCENT)];
+    let expected_fees: Vec<(Vec<u8>, num_bigint::BigUint)> = vec![(DAO_GOVERNANCE_TOKEN_ID.as_bytes().to_vec(), swap_base_amount * OWNER_FEE / MAX_PERCENT)];
     sc_setup.dex_check_cummulated_fees(expected_fees);
 }
 
@@ -187,8 +186,7 @@ fn dex_swap_fixed_output_test() {
     let pair_id = sc_setup.dex_get_pair_id_by_tickers(FRANCHISE1_GOVERNANCE_TOKEN_ID, DAO_GOVERNANCE_TOKEN_ID);
     sc_setup.dex_set_pair_active(&owner, pair_id.unwrap(), None);
     // set owner fee
-    let new_fee = 100;
-    sc_setup.dex_set_owner_fee(&owner, new_fee, None);
+    sc_setup.dex_set_owner_fee(&owner, OWNER_FEE, None);
     // calculate amount in and set balance
     let amount_in = sc_setup.dex_get_amount_in(DAO_GOVERNANCE_TOKEN_ID, FRANCHISE1_GOVERNANCE_TOKEN_ID, &token_amount_wanted);
     sc_setup.blockchain_wrapper.set_esdt_balance(&owner, DAO_GOVERNANCE_TOKEN_ID.as_bytes(), &amount_in);
@@ -204,6 +202,6 @@ fn dex_swap_fixed_output_test() {
     // check balances
     sc_setup.blockchain_wrapper.check_esdt_balance(&owner, FRANCHISE1_GOVERNANCE_TOKEN_ID.as_bytes(), &token_amount_wanted);
     // check cummulated fees
-    let expected_fees: Vec<(Vec<u8>, num_bigint::BigUint)> = vec![(DAO_GOVERNANCE_TOKEN_ID.as_bytes().to_vec(), amount_in * new_fee / MAX_PERCENT)];
+    let expected_fees: Vec<(Vec<u8>, num_bigint::BigUint)> = vec![(DAO_GOVERNANCE_TOKEN_ID.as_bytes().to_vec(), amount_in * OWNER_FEE / MAX_PERCENT)];
     sc_setup.dex_check_cummulated_fees(expected_fees);
 }

@@ -2,7 +2,7 @@
 
 use multiversx_sc::types::Address;
 use multiversx_sc_scenario::{
-    managed_address, managed_token_id, rust_biguint, testing_framework::*, DebugApi
+    managed_address, managed_buffer, managed_token_id, rust_biguint, testing_framework::*, DebugApi
 };
 
 use tfn_dao::{TFNDAOContract, common::config::ConfigModule as _};
@@ -124,6 +124,8 @@ where
         let big_zero = rust_biguint!(0u64);
         let owner_address = blockchain_wrapper.create_user_account(&big_zero);
     
+        // DEPLOYS
+
         // deploy DAO
         let dao_wrapper = blockchain_wrapper.create_sc_account(
             &big_zero,
@@ -131,6 +133,96 @@ where
             dao_builder,
             DAO_WASM_PATH,
         );
+
+        // deploy DEX
+        let dex_wrapper = blockchain_wrapper.create_sc_account(
+            &big_zero,
+            Some(&owner_address),
+            dex_builder,
+            DEX_WASM_PATH,
+        );
+
+        // deploy template test launchpad
+        let template_test_launchpad_wrapper = blockchain_wrapper.create_sc_account(
+            &big_zero,
+            Some(&owner_address),
+            test_launchpad_builder,
+            TEST_LAUNCHPAD_WASM_PATH,
+        );
+
+        // deploy template test staking
+        let template_test_staking_wrapper = blockchain_wrapper.create_sc_account(
+            &big_zero,
+            Some(&owner_address),
+            test_staking_builder,
+            TEST_STAKING_WASM_PATH,
+        );
+
+        // deploy template test DEX
+        let template_test_dex_wrapper = blockchain_wrapper.create_sc_account(
+            &big_zero,
+            Some(&owner_address),
+            test_dex_builder,
+            TEST_DEX_WASM_PATH,
+        );
+
+        // deploy template NFT marketplace
+        let template_nft_marketplace_wrapper = blockchain_wrapper.create_sc_account(
+            &big_zero,
+            Some(&owner_address),
+            nft_marketplace_builder,
+            NFT_MARKETPLACE_WASM_PATH,
+        );
+
+        // deploy platform
+        let platform_wrapper = blockchain_wrapper.create_sc_account(
+            &big_zero,
+            Some(&owner_address),
+            platform_builder,
+            PLATFORM_WASM_PATH,
+        );
+
+        // deploy franchise DAO
+        let template_franchise_dao_wrapper = blockchain_wrapper.create_sc_account(
+            &big_zero,
+            Some(&owner_address),
+            franchise_dao_builder,
+            FRANCHISE_DAO_WASM_PATH,
+        );
+
+        // deploy employee
+        let template_employee_wrapper = blockchain_wrapper.create_sc_account(
+            &big_zero,
+            Some(&owner_address),
+            employee_builder,
+            EMPLOYEE_WASM_PATH,
+        );
+
+        // deploy student
+        let template_student_wrapper = blockchain_wrapper.create_sc_account(
+            &big_zero,
+            Some(&owner_address),
+            student_builder,
+            STUDENT_WASM_PATH,
+        );
+
+        // deploy launchpad
+        let launchpad_wrapper = blockchain_wrapper.create_sc_account(
+            &big_zero,
+            Some(&owner_address),
+            launchpad_builder,
+            LAUNCHPAD_WASM_PATH,
+        );
+
+        // deploy staking
+        let staking_wrapper = blockchain_wrapper.create_sc_account(
+            &big_zero,
+            Some(&owner_address),
+            staking_builder,
+            STAKING_WASM_PATH,
+        );
+
+        // INITS
 
         // init DAO
         blockchain_wrapper
@@ -153,14 +245,6 @@ where
             })
             .assert_ok();
 
-        // deploy DEX
-        let dex_wrapper = blockchain_wrapper.create_sc_account(
-            &big_zero,
-            Some(&owner_address),
-            dex_builder,
-            DEX_WASM_PATH,
-        );
-
         // init DEX
         blockchain_wrapper
             .execute_tx(&owner_address, &dex_wrapper, &big_zero, |sc| {
@@ -168,43 +252,52 @@ where
             })
             .assert_ok();
 
-        // deploy platform
-        let platform_wrapper = blockchain_wrapper.create_sc_account(
-            &big_zero,
-            Some(&owner_address),
-            platform_builder,
-            PLATFORM_WASM_PATH,
-        );
+        // init test launchpad
+        blockchain_wrapper
+            .execute_tx(&owner_address, &template_test_launchpad_wrapper, &big_zero, |sc| {
+                sc.init()
+            })
+            .assert_ok();
+
+        // init test staking
+        blockchain_wrapper
+            .execute_tx(&owner_address, &template_test_staking_wrapper, &big_zero, |sc| {
+                sc.init()
+            })
+            .assert_ok();
+
+        // init test DEX
+        blockchain_wrapper
+            .execute_tx(&owner_address, &template_test_dex_wrapper, &big_zero, |sc| {
+                sc.init()
+            })
+            .assert_ok();
+
+        // init NFT marketplace
+        blockchain_wrapper
+            .execute_tx(&owner_address, &template_nft_marketplace_wrapper, &big_zero, |sc| {
+                sc.init()
+            })
+            .assert_ok();
 
         // init platform
         blockchain_wrapper
             .execute_tx(&owner_address, &platform_wrapper, &big_zero, |sc| {
-                sc.init(managed_address!(dao_wrapper.address_ref()))
+                sc.init(
+                    managed_address!(template_test_launchpad_wrapper.address_ref()),
+                    managed_address!(template_test_dex_wrapper.address_ref()),
+                    managed_address!(template_test_staking_wrapper.address_ref()),
+                    managed_address!(template_nft_marketplace_wrapper.address_ref()),
+                )
             })
             .assert_ok();
         
-        // deploy franchise DAO
-        let template_franchise_dao_wrapper = blockchain_wrapper.create_sc_account(
-            &big_zero,
-            Some(&owner_address),
-            franchise_dao_builder,
-            FRANCHISE_DAO_WASM_PATH,
-        );
-
         // init franchise DAO
         blockchain_wrapper
             .execute_tx(&owner_address, &template_franchise_dao_wrapper, &big_zero, |sc| {
-                sc.init(&managed_address!(&owner_address), &managed_token_id!(DAO_GOVERNANCE_TOKEN_ID))
+                sc.init(&managed_address!(&owner_address), &managed_token_id!(FRANCHISE1_GOVERNANCE_TOKEN_ID))
             })
             .assert_ok();
-
-        // deploy employee
-        let template_employee_wrapper = blockchain_wrapper.create_sc_account(
-            &big_zero,
-            Some(&owner_address),
-            employee_builder,
-            EMPLOYEE_WASM_PATH,
-        );
 
         // init employee
         blockchain_wrapper
@@ -213,14 +306,6 @@ where
             })
             .assert_ok();
 
-        // deploy student
-        let template_student_wrapper = blockchain_wrapper.create_sc_account(
-            &big_zero,
-            Some(&owner_address),
-            student_builder,
-            STUDENT_WASM_PATH,
-        );
-
         // init student
         blockchain_wrapper
             .execute_tx(&owner_address, &template_student_wrapper, &big_zero, |sc| {
@@ -228,35 +313,15 @@ where
             })
             .assert_ok();
 
-        // deploy launchpad
-        let launchpad_wrapper = blockchain_wrapper.create_sc_account(
-            &big_zero,
-            Some(&owner_address),
-            launchpad_builder,
-            LAUNCHPAD_WASM_PATH,
-        );
-
         // init launchpad
         blockchain_wrapper
             .execute_tx(&owner_address, &launchpad_wrapper, &big_zero, |sc| {
                 sc.init(
                     managed_address!(dao_wrapper.address_ref()),
                     managed_address!(dex_wrapper.address_ref()),
-                    managed_address!(platform_wrapper.address_ref()),
-                    managed_address!(template_franchise_dao_wrapper.address_ref()),
-                    managed_address!(template_employee_wrapper.address_ref()),
-                    managed_address!(template_student_wrapper.address_ref()),
                 )
             })
             .assert_ok();
-
-        // deploy staking
-        let staking_wrapper = blockchain_wrapper.create_sc_account(
-            &big_zero,
-            Some(&owner_address),
-            staking_builder,
-            STAKING_WASM_PATH,
-        );
 
         // init staking
         blockchain_wrapper
@@ -265,70 +330,24 @@ where
             })
             .assert_ok();
 
-        // deploy test launchpad
-        let test_launchpad_wrapper = blockchain_wrapper.create_sc_account(
-            &big_zero,
-            Some(&owner_address),
-            test_launchpad_builder,
-            TEST_LAUNCHPAD_WASM_PATH,
-        );
-
-        // init test launchpad
-        blockchain_wrapper
-            .execute_tx(&owner_address, &test_launchpad_wrapper, &big_zero, |sc| {
-                sc.init(managed_address!(platform_wrapper.address_ref()))
-            })
-            .assert_ok();
-
-        // deploy test staking
-        let test_staking_wrapper = blockchain_wrapper.create_sc_account(
-            &big_zero,
-            Some(&owner_address),
-            test_staking_builder,
-            TEST_STAKING_WASM_PATH,
-        );
-
-        // init test staking
-        blockchain_wrapper
-            .execute_tx(&owner_address, &test_staking_wrapper, &big_zero, |sc| {
-                sc.init(managed_address!(platform_wrapper.address_ref()))
-            })
-            .assert_ok();
-
-        // deploy test DEX
-        let test_dex_wrapper = blockchain_wrapper.create_sc_account(
-            &big_zero,
-            Some(&owner_address),
-            test_dex_builder,
-            TEST_DEX_WASM_PATH,
-        );
-
-        // init test DEX
-        blockchain_wrapper
-            .execute_tx(&owner_address, &test_dex_wrapper, &big_zero, |sc| {
-                sc.init(managed_address!(platform_wrapper.address_ref()))
-            })
-            .assert_ok();
-
-        // deploy NFT marketplace
-        let nft_marketplace_wrapper = blockchain_wrapper.create_sc_account(
-            &big_zero,
-            Some(&owner_address),
-            nft_marketplace_builder,
-            NFT_MARKETPLACE_WASM_PATH,
-        );
-
-        // init NFT marketplace
-        blockchain_wrapper
-            .execute_tx(&owner_address, &nft_marketplace_wrapper, &big_zero, |sc| {
-                sc.init(managed_address!(platform_wrapper.address_ref()))
-            })
-            .assert_ok();
-
         // activate DAO
         blockchain_wrapper
             .execute_tx(&owner_address, &dao_wrapper, &big_zero, |sc| {
                 sc.set_launchpad_address(managed_address!(launchpad_wrapper.address_ref()));
+            })
+            .assert_ok();
+        blockchain_wrapper
+            .execute_tx(&owner_address, &dao_wrapper, &big_zero, |sc| {
+                sc.set_platform_address(managed_address!(platform_wrapper.address_ref()));
+            })
+            .assert_ok();
+        blockchain_wrapper
+            .execute_tx(&owner_address, &dao_wrapper, &big_zero, |sc| {
+                sc.set_template_addresses(
+                    managed_address!(template_franchise_dao_wrapper.address_ref()),
+                    managed_address!(template_employee_wrapper.address_ref()),
+                    managed_address!(template_student_wrapper.address_ref()),
+                );
             })
             .assert_ok();
         blockchain_wrapper
@@ -352,27 +371,107 @@ where
         // activate platform
         blockchain_wrapper
             .execute_tx(&owner_address, &platform_wrapper, &big_zero, |sc| {
-                sc.set_test_launchpad(managed_address!(test_launchpad_wrapper.address_ref()));
-            })
-            .assert_ok();
-        blockchain_wrapper
-            .execute_tx(&owner_address, &platform_wrapper, &big_zero, |sc| {
-                sc.set_test_dex(managed_address!(test_dex_wrapper.address_ref()));
-            })
-            .assert_ok();
-        blockchain_wrapper
-            .execute_tx(&owner_address, &platform_wrapper, &big_zero, |sc| {
-                sc.set_test_staking(managed_address!(test_staking_wrapper.address_ref()));
-            })
-            .assert_ok();
-        blockchain_wrapper
-            .execute_tx(&owner_address, &platform_wrapper, &big_zero, |sc| {
-                sc.set_nft_marketplace(managed_address!(nft_marketplace_wrapper.address_ref()));
+                sc.set_main_dao(managed_address!(dao_wrapper.address_ref()));
             })
             .assert_ok();
         blockchain_wrapper
             .execute_tx(&owner_address, &platform_wrapper, &big_zero, |sc| {
                 sc.set_state_active();
+            })
+            .assert_ok();
+
+        // subscribe on platform
+        let mut nft_marketplace_address= Address::zero();
+        let mut test_launchpad_address= Address::zero();
+        let mut test_dex_address= Address::zero();
+        let mut test_staking_address= Address::zero();
+        blockchain_wrapper
+            .execute_tx(launchpad_wrapper.address_ref(), &platform_wrapper, &big_zero, |sc| {
+                sc.subscribe_franchise(managed_address!(&owner_address), tfn_platform::common::config::SubscriberDetails {
+                    name: managed_buffer!(b""),
+                    description: managed_buffer!(b""),
+                    logo: managed_buffer!(b""),
+                    card: managed_buffer!(b""),
+                    website: managed_buffer!(b""),
+                    email: managed_buffer!(b""),
+                    twitter: managed_buffer!(b""),
+                    telegram: managed_buffer!(b""),
+                });
+            })
+            .assert_ok();
+
+        blockchain_wrapper
+            .execute_query(&platform_wrapper, |sc| {
+                let subscriber_id = sc.get_subscriber_id_by_address(&managed_address!(&owner_address));
+                let subscriber = sc.subscribers(subscriber_id.unwrap()).get();
+                nft_marketplace_address = subscriber.nft_marketplace_sc.to_address();
+                test_launchpad_address = subscriber.launchpad_sc.to_address();
+                test_dex_address = subscriber.dex_sc.to_address();
+                test_staking_address = subscriber.staking_sc.to_address();
+            })
+            .assert_ok();
+
+        // deploy NFT Marketplace
+        let nft_marketplace_wrapper = blockchain_wrapper.create_sc_account_fixed_address(
+            &nft_marketplace_address,
+            &big_zero,
+            Some(&owner_address),
+            nft_marketplace_builder,
+            NFT_MARKETPLACE_WASM_PATH,
+        );
+
+        // deploy test Launchpad
+        let test_launchpad_wrapper = blockchain_wrapper.create_sc_account_fixed_address(
+            &test_launchpad_address,
+            &big_zero,
+            Some(&owner_address),
+            test_launchpad_builder,
+            TEST_LAUNCHPAD_WASM_PATH,
+        );
+
+        // deploy test DEX
+        let test_dex_wrapper = blockchain_wrapper.create_sc_account_fixed_address(
+            &test_dex_address,
+            &big_zero,
+            Some(&owner_address),
+            test_dex_builder,
+            TEST_DEX_WASM_PATH,
+        );
+
+        // deploy test Staking
+        let test_staking_wrapper = blockchain_wrapper.create_sc_account_fixed_address(
+            &test_staking_address,
+            &big_zero,
+            Some(&owner_address),
+            test_staking_builder,
+            TEST_STAKING_WASM_PATH,
+        );
+
+        // init NFT Marketplace
+        blockchain_wrapper
+            .execute_tx(platform_wrapper.address_ref(), &nft_marketplace_wrapper, &big_zero, |sc| {
+                sc.init()
+            })
+            .assert_ok();
+
+        // init test Launchpad
+        blockchain_wrapper
+            .execute_tx(platform_wrapper.address_ref(), &test_launchpad_wrapper, &big_zero, |sc| {
+                sc.init()
+            })
+            .assert_ok();
+
+        // init test DEX
+        blockchain_wrapper
+            .execute_tx(platform_wrapper.address_ref(), &test_dex_wrapper, &big_zero, |sc| {
+                sc.init()
+            })
+            .assert_ok();
+
+        // init test Staking
+        blockchain_wrapper
+            .execute_tx(platform_wrapper.address_ref(), &test_staking_wrapper, &big_zero, |sc| {
+                sc.init()
             })
             .assert_ok();
 

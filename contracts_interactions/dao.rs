@@ -1,6 +1,7 @@
 #![allow(clippy::too_many_arguments)]
 
 use multiversx_sc::types::Address;
+use tfn_platform::common::config::SubscriberDetails;
 use crate::contracts_setup::*;
 use multiversx_sc_scenario::{managed_address, managed_buffer, managed_token_id, num_bigint, rust_biguint, DebugApi};
 use tfn_dao::{multisig::MultisigModule, common::config::*, *};
@@ -220,6 +221,16 @@ where
                     managed_buffer!(title.as_bytes()),
                     managed_buffer!(description.as_bytes()),
                     LaunchpadProposal{
+                        details: SubscriberDetails {
+                            name: managed_buffer!(b""),
+                            description: managed_buffer!(b""),
+                            logo: managed_buffer!(b""),
+                            card: managed_buffer!(b""),
+                            website: managed_buffer!(b""),
+                            email: managed_buffer!(b""),
+                            twitter: managed_buffer!(b""),
+                            telegram: managed_buffer!(b""),
+                        },
                         kyc_enforced,
                         token: managed_token_id!(token),
                         payment_token: managed_token_id!(payment_token),

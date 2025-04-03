@@ -1,8 +1,8 @@
-use multiversx_sc::types::Address;
-use multiversx_sc_scenario::{managed_address, DebugApi};
+use multiversx_sc::{imports::OptionalValue, types::Address};
+use multiversx_sc_scenario::{managed_address, num_bigint, rust_biguint, DebugApi};
 
 use crate::contracts_setup::TFNContractSetup;
-use tfn_platform::common::config::*;
+use tfn_platform::{common::config::*, TFNPlatformContract};
 
 impl<
     TFNDAOContractObjBuilder,
@@ -46,6 +46,39 @@ where
     TFNTestDEXContractObjBuilder: 'static + Copy + Fn() -> tfn_test_dex::ContractObj<DebugApi>,
     TFNNFTMarketplaceContractObjBuilder: 'static + Copy + Fn() -> tfn_nft_marketplace::ContractObj<DebugApi>,
 {
+    pub fn platform_subscribe(
+        &mut self,
+        caller: &Address,
+        token: &str,
+        amount: &num_bigint::BigUint,
+        err: Option<&[u8]>,
+    ) {
+        let result = self.blockchain_wrapper
+            .execute_esdt_transfer(
+                caller,
+                &self.platform_wrapper,
+                token.as_bytes(),
+                0,
+                amount,
+                |sc| {
+                sc.subscribe(OptionalValue::None);
+            });
+        self.handle_error(&result, err);
+    }
+
+    pub fn platform_whitelist_address(
+        &mut self,
+        caller: &Address,
+        user: &Address,
+        err: Option<&[u8]>,
+    ) {
+        let result = self.blockchain_wrapper
+            .execute_tx(caller, &self.platform_wrapper, &rust_biguint!(0u64), |sc| {
+                sc.whitelist_address(managed_address!(user));
+            });
+        self.handle_error(&result, err);
+    }
+
     // checks
     pub fn platform_check_is_subscribed(
         &mut self,
