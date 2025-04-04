@@ -1,3 +1,4 @@
+use multiversx_sc::types::Address;
 use multiversx_sc_scenario::{rust_biguint, DebugApi};
 use tfn_dex::common::{consts::MAX_PERCENT, errors::*};
 use tfn_test_dex::common::errors::*;
@@ -12,8 +13,6 @@ fn test_dex_create_pair_test() {
         tfn_dex::contract_obj,
         tfn_platform::contract_obj,
         tfn_franchise_dao::contract_obj,
-        tfn_employee::contract_obj,
-        tfn_student::contract_obj,
         tfn_launchpad::contract_obj,
         tfn_staking::contract_obj,
         tfn_test_launchpad::contract_obj,
@@ -59,8 +58,6 @@ fn test_dex_liquidity_test() {
         tfn_dex::contract_obj,
         tfn_platform::contract_obj,
         tfn_franchise_dao::contract_obj,
-        tfn_employee::contract_obj,
-        tfn_student::contract_obj,
         tfn_launchpad::contract_obj,
         tfn_staking::contract_obj,
         tfn_test_launchpad::contract_obj,
@@ -69,7 +66,7 @@ fn test_dex_liquidity_test() {
         tfn_nft_marketplace::contract_obj,
         tfn_digital_identity::contract_obj,
     );
-    let owner = sc_setup.student_wrapper.address_ref().clone();
+    let owner = Address::from_slice(STUDENT_ADDRESS.as_bytes());
     let user = sc_setup.setup_new_user(1u64);
     let token_amount = exp18(100);
     let base_token_amount = exp18(1000);
@@ -128,8 +125,6 @@ fn test_dex_swap_fixed_input_test() {
         tfn_dex::contract_obj,
         tfn_platform::contract_obj,
         tfn_franchise_dao::contract_obj,
-        tfn_employee::contract_obj,
-        tfn_student::contract_obj,
         tfn_launchpad::contract_obj,
         tfn_staking::contract_obj,
         tfn_test_launchpad::contract_obj,
@@ -138,7 +133,7 @@ fn test_dex_swap_fixed_input_test() {
         tfn_nft_marketplace::contract_obj,
         tfn_digital_identity::contract_obj,
     );
-    let owner = sc_setup.student_wrapper.address_ref().clone();
+    let owner = Address::from_slice(STUDENT_ADDRESS.as_bytes());
     let swap_base_amount = exp18(10);
     let token_amount = exp18(100);
     let base_token_amount = exp18(1000);
@@ -197,8 +192,6 @@ fn test_dex_swap_fixed_output_test() {
         tfn_dex::contract_obj,
         tfn_platform::contract_obj,
         tfn_franchise_dao::contract_obj,
-        tfn_employee::contract_obj,
-        tfn_student::contract_obj,
         tfn_launchpad::contract_obj,
         tfn_staking::contract_obj,
         tfn_test_launchpad::contract_obj,
@@ -207,7 +200,7 @@ fn test_dex_swap_fixed_output_test() {
         tfn_nft_marketplace::contract_obj,
         tfn_digital_identity::contract_obj,
     );
-    let owner = sc_setup.student_wrapper.address_ref().clone();
+    let owner = Address::from_slice(STUDENT_ADDRESS.as_bytes());
     let token_amount_wanted = exp18(1);
     let token_amount = exp18(100);
     let base_token_amount = exp18(1000);

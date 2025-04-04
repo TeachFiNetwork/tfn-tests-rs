@@ -1,8 +1,9 @@
 #![allow(clippy::too_many_arguments)]
 
-use multiversx_sc::types::Address;
+use multiversx_sc::types::{Address, ManagedVec};
+use tfn_digital_identity::common::config::Identity;
 use crate::contracts_setup::*;
-use multiversx_sc_scenario::{managed_address, managed_buffer, managed_token_id, num_bigint, rust_biguint, DebugApi};
+use multiversx_sc_scenario::{managed_address, managed_biguint, managed_buffer, managed_token_id, num_bigint, rust_biguint, DebugApi};
 use tfn_dao::{multisig::MultisigModule, common::config::*, *};
 
 impl<
@@ -10,8 +11,6 @@ impl<
     TFNDEXContractObjBuilder,
     TFNPlatformContractObjBuilder,
     TFNFranchiseDAOContractObjBuilder,
-    TFNEmployeeContractObjBuilder,
-    TFNStudentContractObjBuilder,
     TFNLaunchpadContractObjBuilder,
     TFNStakingContractObjBuilder,
     TFNTestLaunchpadContractObjBuilder,
@@ -25,8 +24,6 @@ TFNContractSetup<
     TFNDEXContractObjBuilder,
     TFNPlatformContractObjBuilder,
     TFNFranchiseDAOContractObjBuilder,
-    TFNEmployeeContractObjBuilder,
-    TFNStudentContractObjBuilder,
     TFNLaunchpadContractObjBuilder,
     TFNStakingContractObjBuilder,
     TFNTestLaunchpadContractObjBuilder,
@@ -40,8 +37,6 @@ where
     TFNDEXContractObjBuilder: 'static + Copy + Fn() -> tfn_dex::ContractObj<DebugApi>,
     TFNPlatformContractObjBuilder: 'static + Copy + Fn() -> tfn_platform::ContractObj<DebugApi>,
     TFNFranchiseDAOContractObjBuilder: 'static + Copy + Fn() -> tfn_franchise_dao::ContractObj<DebugApi>,
-    TFNEmployeeContractObjBuilder: 'static + Copy + Fn() -> tfn_employee::ContractObj<DebugApi>,
-    TFNStudentContractObjBuilder: 'static + Copy + Fn() -> tfn_student::ContractObj<DebugApi>,
     TFNLaunchpadContractObjBuilder: 'static + Copy + Fn() -> tfn_launchpad::ContractObj<DebugApi>,
     TFNStakingContractObjBuilder: 'static + Copy + Fn() -> tfn_staking::ContractObj<DebugApi>,
     TFNTestLaunchpadContractObjBuilder: 'static + Copy + Fn() -> tfn_test_launchpad::ContractObj<DebugApi>,
@@ -206,7 +201,6 @@ where
         caller: &Address,
         title: &str,
         description: &str,
-        identity_id: u64,
         kyc_enforced: bool,
         token: &str,
         payment_token: &str,
@@ -224,7 +218,17 @@ where
                     managed_buffer!(title.as_bytes()),
                     managed_buffer!(description.as_bytes()),
                     LaunchpadProposal{
-                        identity_id,
+                        details: Identity {
+                            id: 0,
+                            is_corporate: false,
+                            legal_id: managed_biguint!(0),
+                            birthdate: 0,
+                            address: managed_address!(&Address::zero()),
+                            name: managed_buffer!(b""),
+                            description: managed_buffer!(b""),
+                            image: managed_buffer!(b""),
+                            contact: ManagedVec::new(),
+                        },
                         kyc_enforced,
                         token: managed_token_id!(token),
                         payment_token: managed_token_id!(payment_token),

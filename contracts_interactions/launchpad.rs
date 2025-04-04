@@ -1,7 +1,8 @@
 #![allow(clippy::too_many_arguments)]
 
-use multiversx_sc::types::Address;
-use multiversx_sc_scenario::{managed_address, managed_token_id, num_bigint, rust_biguint, DebugApi};
+use multiversx_sc::types::{Address, ManagedVec};
+use multiversx_sc_scenario::{managed_address, managed_biguint, managed_buffer, managed_token_id, num_bigint, rust_biguint, DebugApi};
+use tfn_digital_identity::common::config::Identity;
 
 use crate::{consts::ISSUE_TOKEN_PRICE, contracts_setup::TFNContractSetup};
 
@@ -12,8 +13,6 @@ impl<
     TFNDEXContractObjBuilder,
     TFNPlatformContractObjBuilder,
     TFNFranchiseDAOContractObjBuilder,
-    TFNEmployeeContractObjBuilder,
-    TFNStudentContractObjBuilder,
     TFNLaunchpadContractObjBuilder,
     TFNStakingContractObjBuilder,
     TFNTestLaunchpadContractObjBuilder,
@@ -27,8 +26,6 @@ TFNContractSetup<
     TFNDEXContractObjBuilder,
     TFNPlatformContractObjBuilder,
     TFNFranchiseDAOContractObjBuilder,
-    TFNEmployeeContractObjBuilder,
-    TFNStudentContractObjBuilder,
     TFNLaunchpadContractObjBuilder,
     TFNStakingContractObjBuilder,
     TFNTestLaunchpadContractObjBuilder,
@@ -42,8 +39,6 @@ where
     TFNDEXContractObjBuilder: 'static + Copy + Fn() -> tfn_dex::ContractObj<DebugApi>,
     TFNPlatformContractObjBuilder: 'static + Copy + Fn() -> tfn_platform::ContractObj<DebugApi>,
     TFNFranchiseDAOContractObjBuilder: 'static + Copy + Fn() -> tfn_franchise_dao::ContractObj<DebugApi>,
-    TFNEmployeeContractObjBuilder: 'static + Copy + Fn() -> tfn_employee::ContractObj<DebugApi>,
-    TFNStudentContractObjBuilder: 'static + Copy + Fn() -> tfn_student::ContractObj<DebugApi>,
     TFNLaunchpadContractObjBuilder: 'static + Copy + Fn() -> tfn_launchpad::ContractObj<DebugApi>,
     TFNStakingContractObjBuilder: 'static + Copy + Fn() -> tfn_staking::ContractObj<DebugApi>,
     TFNTestLaunchpadContractObjBuilder: 'static + Copy + Fn() -> tfn_test_launchpad::ContractObj<DebugApi>,
@@ -56,7 +51,6 @@ where
         &mut self,
         caller: &Address,
         owner: &Address,
-        identity_id: u64,
         kyc_enforced: bool,
         token: &str,
         payment_token: &str,
@@ -72,7 +66,17 @@ where
             .execute_tx(caller, &self.launchpad_wrapper, &rust_biguint!(0u64), |sc| {
                 launchpad_id = sc.new_launchpad(
                     managed_address!(owner),
-                    identity_id,
+                    Identity {
+                        id: 0,
+                        is_corporate: false,
+                        legal_id: managed_biguint!(0),
+                        birthdate: 0,
+                        address: managed_address!(&Address::zero()),
+                        name: managed_buffer!(b""),
+                        description: managed_buffer!(b""),
+                        image: managed_buffer!(b""),
+                        contact: ManagedVec::new(),
+                    },
                     kyc_enforced,
                     managed_token_id!(token),
                     managed_token_id!(payment_token),

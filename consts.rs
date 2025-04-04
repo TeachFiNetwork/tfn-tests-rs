@@ -24,3 +24,11 @@ pub const DAO_VOTING_PERIOD: u64 = 60 * 60 * 24; // 1 day in seconds
 pub const ISSUE_TOKEN_PRICE: u64 = 50_000_000_000_000_000;
 pub const OWNER_FEE: u64 = 10;
 pub const LP_FEE: u64 = 10;
+
+pub const SCHOOL_NAME: &str = "School";
+pub const CLASS_NAME: &str = "Class";
+pub const STUDENT_NAME: &str = "Student";
+pub const TEACHER_NAME: &str = "Teacher";
+
+pub const STUDENT_ADDRESS: &str = "student";
+pub const TEACHER_ADDRESS: &str = "teacher";

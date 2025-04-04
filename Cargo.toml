@@ -32,12 +32,6 @@ path = "../tfn-platform-rs"
 [dependencies.tfn-franchise-dao]
 path = "../tfn-franchise-dao-rs"
 
-[dependencies.tfn-employee]
-path = "../tfn-employee-rs"
-
-[dependencies.tfn-student]
-path = "../tfn-student-rs"
-
 [dependencies.tfn-launchpad]
 path = "../tfn-launchpad-rs"
 

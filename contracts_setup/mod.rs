@@ -9,15 +9,13 @@ use tfn_dao::{common::config::{ConfigModule as _, LaunchpadProposal}, TFNDAOCont
 use tfn_dex::TFNDEXContract;
 use tfn_platform::{common::config::ConfigModule as _, TFNPlatformContract};
 use tfn_franchise_dao::{common::config::ConfigModule, school::SchoolModule, TFNFranchiseDAOContract};
-use tfn_employee::TFNEmployeeContract;
-use tfn_student::TFNStudentContract;
 use tfn_launchpad::{TFNLaunchpadContract, common::config::ConfigModule as _};
 use tfn_staking::TFNStakingContract;
 use tfn_test_launchpad::TFNTestLaunchpadContract;
 use tfn_test_staking::TFNTestStakingContract;
 use tfn_test_dex::TFNTestDEXContract;
 use tfn_nft_marketplace::TFNNFTMarketplaceContract;
-use tfn_digital_identity::TFNDigitalIdentityContract;
+use tfn_digital_identity::{common::config::Identity, TFNDigitalIdentityContract};
 
 use crate::{consts::*, contracts_interactions::common::exp18};
 
@@ -26,8 +24,6 @@ pub struct TFNContractSetup<
     TFNDEXContractObjBuilder,
     TFNPlatformContractObjBuilder,
     TFNFranchiseDAOContractObjBuilder,
-    TFNEmployeeContractObjBuilder,
-    TFNStudentContractObjBuilder,
     TFNLaunchpadContractObjBuilder,
     TFNStakingContractObjBuilder,
     TFNTestLaunchpadContractObjBuilder,
@@ -41,8 +37,6 @@ where
     TFNDEXContractObjBuilder: 'static + Copy + Fn() -> tfn_dex::ContractObj<DebugApi>,
     TFNPlatformContractObjBuilder: 'static + Copy + Fn() -> tfn_platform::ContractObj<DebugApi>,
     TFNFranchiseDAOContractObjBuilder: 'static + Copy + Fn() -> tfn_franchise_dao::ContractObj<DebugApi>,
-    TFNEmployeeContractObjBuilder: 'static + Copy + Fn() -> tfn_employee::ContractObj<DebugApi>,
-    TFNStudentContractObjBuilder: 'static + Copy + Fn() -> tfn_student::ContractObj<DebugApi>,
     TFNLaunchpadContractObjBuilder: 'static + Copy + Fn() -> tfn_launchpad::ContractObj<DebugApi>,
     TFNStakingContractObjBuilder: 'static + Copy + Fn() -> tfn_staking::ContractObj<DebugApi>,
     TFNTestLaunchpadContractObjBuilder: 'static + Copy + Fn() -> tfn_test_launchpad::ContractObj<DebugApi>,
@@ -57,8 +51,6 @@ where
     pub dex_wrapper: ContractObjWrapper<tfn_dex::ContractObj<DebugApi>, TFNDEXContractObjBuilder>,
     pub platform_wrapper: ContractObjWrapper<tfn_platform::ContractObj<DebugApi>, TFNPlatformContractObjBuilder>,
     pub franchise_dao_wrapper: ContractObjWrapper<tfn_franchise_dao::ContractObj<DebugApi>, TFNFranchiseDAOContractObjBuilder>,
-    pub employee_wrapper: ContractObjWrapper<tfn_employee::ContractObj<DebugApi>, TFNEmployeeContractObjBuilder>,
-    pub student_wrapper: ContractObjWrapper<tfn_student::ContractObj<DebugApi>, TFNStudentContractObjBuilder>,
     pub launchpad_wrapper: ContractObjWrapper<tfn_launchpad::ContractObj<DebugApi>, TFNLaunchpadContractObjBuilder>,
     pub staking_wrapper: ContractObjWrapper<tfn_staking::ContractObj<DebugApi>, TFNStakingContractObjBuilder>,
     pub test_launchpad_wrapper: ContractObjWrapper<tfn_test_launchpad::ContractObj<DebugApi>, TFNTestLaunchpadContractObjBuilder>,
@@ -73,8 +65,6 @@ impl<
     TFNDEXContractObjBuilder,
     TFNPlatformContractObjBuilder,
     TFNFranchiseDAOContractObjBuilder,
-    TFNEmployeeContractObjBuilder,
-    TFNStudentContractObjBuilder,
     TFNLaunchpadContractObjBuilder,
     TFNStakingContractObjBuilder,
     TFNTestLaunchpadContractObjBuilder,
@@ -88,8 +78,6 @@ TFNContractSetup<
     TFNDEXContractObjBuilder,
     TFNPlatformContractObjBuilder,
     TFNFranchiseDAOContractObjBuilder,
-    TFNEmployeeContractObjBuilder,
-    TFNStudentContractObjBuilder,
     TFNLaunchpadContractObjBuilder,
     TFNStakingContractObjBuilder,
     TFNTestLaunchpadContractObjBuilder,
@@ -103,8 +91,6 @@ where
     TFNDEXContractObjBuilder: 'static + Copy + Fn() -> tfn_dex::ContractObj<DebugApi>,
     TFNPlatformContractObjBuilder: 'static + Copy + Fn() -> tfn_platform::ContractObj<DebugApi>,
     TFNFranchiseDAOContractObjBuilder: 'static + Copy + Fn() -> tfn_franchise_dao::ContractObj<DebugApi>,
-    TFNEmployeeContractObjBuilder: 'static + Copy + Fn() -> tfn_employee::ContractObj<DebugApi>,
-    TFNStudentContractObjBuilder: 'static + Copy + Fn() -> tfn_student::ContractObj<DebugApi>,
     TFNLaunchpadContractObjBuilder: 'static + Copy + Fn() -> tfn_launchpad::ContractObj<DebugApi>,
     TFNStakingContractObjBuilder: 'static + Copy + Fn() -> tfn_staking::ContractObj<DebugApi>,
     TFNTestLaunchpadContractObjBuilder: 'static + Copy + Fn() -> tfn_test_launchpad::ContractObj<DebugApi>,
@@ -118,8 +104,6 @@ where
         dex_builder: TFNDEXContractObjBuilder,
         platform_builder: TFNPlatformContractObjBuilder,
         franchise_dao_builder: TFNFranchiseDAOContractObjBuilder,
-        employee_builder: TFNEmployeeContractObjBuilder,
-        student_builder: TFNStudentContractObjBuilder,
         launchpad_builder: TFNLaunchpadContractObjBuilder,
         staking_builder: TFNStakingContractObjBuilder,
         test_launchpad_builder: TFNTestLaunchpadContractObjBuilder,
@@ -196,22 +180,6 @@ where
             Some(&owner_address),
             franchise_dao_builder,
             FRANCHISE_DAO_WASM_PATH,
-        );
-
-        // deploy employee
-        let template_employee_wrapper = blockchain_wrapper.create_sc_account(
-            &big_zero,
-            Some(&owner_address),
-            employee_builder,
-            EMPLOYEE_WASM_PATH,
-        );
-
-        // deploy student
-        let template_student_wrapper = blockchain_wrapper.create_sc_account(
-            &big_zero,
-            Some(&owner_address),
-            student_builder,
-            STUDENT_WASM_PATH,
         );
 
         // deploy launchpad
@@ -297,21 +265,10 @@ where
         // init franchise DAO
         blockchain_wrapper
             .execute_tx(&owner_address, &template_franchise_dao_wrapper, &big_zero, |sc| {
-                sc.init(&managed_address!(&owner_address), &managed_token_id!(FRANCHISE1_GOVERNANCE_TOKEN_ID))
-            })
-            .assert_ok();
-
-        // init employee
-        blockchain_wrapper
-            .execute_tx(&owner_address, &template_employee_wrapper, &big_zero, |sc| {
-                sc.init("".into())
-            })
-            .assert_ok();
-
-        // init student
-        blockchain_wrapper
-            .execute_tx(&owner_address, &template_student_wrapper, &big_zero, |sc| {
-                sc.init("".into())
+                sc.init(
+                    &managed_address!(&owner_address),
+                    &managed_token_id!(FRANCHISE1_GOVERNANCE_TOKEN_ID),
+                )
             })
             .assert_ok();
 
@@ -344,11 +301,7 @@ where
             sc.set_voting_period(DAO_VOTING_PERIOD);
             sc.set_launchpad_address(managed_address!(launchpad_wrapper.address_ref()));
             sc.set_platform_address(managed_address!(platform_wrapper.address_ref()));
-            sc.set_template_addresses(
-                managed_address!(template_franchise_dao_wrapper.address_ref()),
-                managed_address!(template_employee_wrapper.address_ref()),
-                managed_address!(template_student_wrapper.address_ref()),
-            );
+            sc.set_template_franchise_dao(managed_address!(template_franchise_dao_wrapper.address_ref()));
             sc.set_digital_identity_address(managed_address!(digital_identity_wrapper.address_ref()));
             sc.set_state_active();
         })
@@ -369,24 +322,7 @@ where
 
         // LAUNCH A FRANCHISE
 
-        // add franchise identity
-        blockchain_wrapper.execute_tx(&owner_address, &digital_identity_wrapper, &big_zero, |sc| {
-            sc.add_identity(
-                true,
-                managed_biguint!(0),
-                0,
-                managed_address!(&owner_address),
-                managed_buffer!(b"Launchpad 0"),
-                managed_buffer!(b""),
-                managed_buffer!(b""),
-                ManagedVec::new(),
-            );
-        })
-        .assert_ok();
-
         let mut franchise_address = Address::zero();
-        let mut employee_address = Address::zero();
-        let mut student_address = Address::zero();
         let mut nft_marketplace_address= Address::zero();
         let mut test_launchpad_address= Address::zero();
         let mut test_dex_address= Address::zero();
@@ -401,7 +337,17 @@ where
                 managed_buffer!(b"title"),
                 managed_buffer!(b"description"),
                 LaunchpadProposal{
-                    identity_id: 0, // debug
+                    details: Identity {
+                        id: 0,
+                        is_corporate: false,
+                        legal_id: managed_biguint!(0),
+                        birthdate: 0,
+                        address: managed_address!(&Address::zero()),
+                        name: managed_buffer!(SCHOOL_NAME.as_bytes()),
+                        description: managed_buffer!(b""),
+                        image: managed_buffer!(b""),
+                        contact: ManagedVec::new(),
+                    },
                     kyc_enforced: false,
                     token: managed_token_id!(FRANCHISE0_GOVERNANCE_TOKEN_ID),
                     payment_token: managed_token_id!(DAO_GOVERNANCE_TOKEN_ID),
@@ -454,38 +400,69 @@ where
             franchise_dao_builder,
             FRANCHISE_DAO_WASM_PATH,
         );
-        // init franchise DAO
-        blockchain_wrapper.execute_tx(launchpad_wrapper.address_ref(), &franchise_dao_wrapper, &big_zero, |sc| {
-            sc.init(&managed_address!(&owner_address), &managed_token_id!(FRANCHISE0_GOVERNANCE_TOKEN_ID));
+        // create student and teacher identities
+        let student_address = Address::from_slice(STUDENT_ADDRESS.as_bytes());
+        let employee_address = Address::from_slice(TEACHER_ADDRESS.as_bytes());
+        blockchain_wrapper.create_user_account_fixed_address(&student_address, &big_zero);
+        blockchain_wrapper.create_user_account_fixed_address(&employee_address, &big_zero);
+        let mut student_identity_id = 0;
+        let mut teacher_identity_id = 0;
+        blockchain_wrapper.execute_tx(&owner_address, &digital_identity_wrapper, &big_zero, |sc| {
+            student_identity_id = sc.new_identity(
+                false,
+                managed_biguint!(0),
+                0,
+                managed_address!(&student_address),
+                managed_buffer!(STUDENT_NAME.as_bytes()),
+                managed_buffer!(b""),
+                managed_buffer!(b""),
+                ManagedVec::new(),
+            );
+            teacher_identity_id = sc.new_identity(
+                false,
+                managed_biguint!(0),
+                0,
+                managed_address!(&employee_address),
+                managed_buffer!(TEACHER_NAME.as_bytes()),
+                managed_buffer!(b""),
+                managed_buffer!(b""),
+                ManagedVec::new(),
+            );
         })
         .assert_ok();
+        // init franchise DAO
+        blockchain_wrapper.execute_tx(launchpad_wrapper.address_ref(), &franchise_dao_wrapper, &big_zero, |sc| {
+            sc.init(
+                &managed_address!(&owner_address),
+                &managed_token_id!(FRANCHISE0_GOVERNANCE_TOKEN_ID),
+            );
+        })
+        .assert_ok();
+
+        let mut teacher_link_request_id = 0;
+        let mut student_link_request_id = 0;
         blockchain_wrapper.execute_tx(&owner_address, &franchise_dao_wrapper, &big_zero, |sc| {
             sc.set_quorum(&exp18(DAO_QUORUM).sqrt().into());
             sc.set_voting_period(DAO_VOTING_PERIOD);
             sc.set_state_active();
-            employee_address = sc.hire_employee(managed_buffer!(b""), true).to_address();
-            let class_id = sc.create_class(2025, managed_buffer!(b""));
-            student_address = sc.enroll_student(managed_buffer!(b""), class_id).to_address();
+            teacher_link_request_id = sc.register_employee_identity(teacher_identity_id, true);
+            student_link_request_id = sc.register_student_identity(student_identity_id);
         })
         .assert_ok();
-
-        // deploy employee
-        let employee_wrapper = blockchain_wrapper.create_sc_account_fixed_address(
-            &employee_address,
-            &big_zero,
-            Some(franchise_dao_wrapper.address_ref()),
-            employee_builder,
-            EMPLOYEE_WASM_PATH,
-        );
-
-        // deploy student
-        let student_wrapper = blockchain_wrapper.create_sc_account_fixed_address(
-            &student_address,
-            &big_zero,
-            Some(franchise_dao_wrapper.address_ref()),
-            student_builder,
-            STUDENT_WASM_PATH,
-        );
+        blockchain_wrapper.execute_tx(&employee_address, &digital_identity_wrapper, &big_zero, |sc| {
+            sc.accept_link(teacher_link_request_id);
+        })
+        .assert_ok();
+        blockchain_wrapper.execute_tx(&student_address, &digital_identity_wrapper, &big_zero, |sc| {
+            sc.accept_link(student_link_request_id);
+        })
+        .assert_ok();
+        blockchain_wrapper.execute_tx(&owner_address, &franchise_dao_wrapper, &big_zero, |sc| {
+            sc.hire_employee(teacher_identity_id, managed_buffer!(b"teacher"), managed_biguint!(0));
+            let class_id = sc.create_class(2025, managed_buffer!(CLASS_NAME.as_bytes()));
+            sc.enroll_student(student_identity_id, class_id);
+        })
+        .assert_ok();
 
         // deploy NFT Marketplace
         let nft_marketplace_wrapper = blockchain_wrapper.create_sc_account_fixed_address(
@@ -556,8 +533,6 @@ where
             dex_wrapper,
             platform_wrapper,
             franchise_dao_wrapper,
-            employee_wrapper,
-            student_wrapper,
             launchpad_wrapper,
             staking_wrapper,
             test_launchpad_wrapper,
