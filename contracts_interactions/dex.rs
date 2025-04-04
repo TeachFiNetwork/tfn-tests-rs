@@ -19,6 +19,7 @@ impl<
     TFNTestStakingContractObjBuilder,
     TFNTestDEXContractObjBuilder,
     TFNNFTMarketplaceContractObjBuilder,
+    TFNDigitalIdentityContractObjBuilder,
 >
 TFNContractSetup<
     TFNDAOContractObjBuilder,
@@ -33,6 +34,7 @@ TFNContractSetup<
     TFNTestStakingContractObjBuilder,
     TFNTestDEXContractObjBuilder,
     TFNNFTMarketplaceContractObjBuilder,
+    TFNDigitalIdentityContractObjBuilder,
 >
 where
     TFNDAOContractObjBuilder: 'static + Copy + Fn() -> tfn_dao::ContractObj<DebugApi>,
@@ -47,6 +49,7 @@ where
     TFNTestStakingContractObjBuilder: 'static + Copy + Fn() -> tfn_test_staking::ContractObj<DebugApi>,
     TFNTestDEXContractObjBuilder: 'static + Copy + Fn() -> tfn_test_dex::ContractObj<DebugApi>,
     TFNNFTMarketplaceContractObjBuilder: 'static + Copy + Fn() -> tfn_nft_marketplace::ContractObj<DebugApi>,
+    TFNDigitalIdentityContractObjBuilder: 'static + Copy + Fn() -> tfn_digital_identity::ContractObj<DebugApi>,
 {
     pub fn dex_create_pair(
         &mut self,

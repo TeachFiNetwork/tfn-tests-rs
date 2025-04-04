@@ -19,6 +19,7 @@ fn launchpad_new_launchpad_test() {
         tfn_test_staking::contract_obj,
         tfn_test_dex::contract_obj,
         tfn_nft_marketplace::contract_obj,
+        tfn_digital_identity::contract_obj,
     );
     let dao_address = sc_setup.dao_wrapper.address_ref().clone();
     let owner = sc_setup.owner.clone();
@@ -75,6 +76,7 @@ fn launchpad_buy_launchpad_with_kyc_test() {
         tfn_test_staking::contract_obj,
         tfn_test_dex::contract_obj,
         tfn_nft_marketplace::contract_obj,
+        tfn_digital_identity::contract_obj,
     );
     let dao_address = sc_setup.dao_wrapper.address_ref().clone();
     let launchpad_address = sc_setup.launchpad_wrapper.address_ref().clone();
@@ -144,6 +146,7 @@ fn launchpad_cancel_test() {
         tfn_test_staking::contract_obj,
         tfn_test_dex::contract_obj,
         tfn_nft_marketplace::contract_obj,
+        tfn_digital_identity::contract_obj,
     );
     let dao_address = sc_setup.dao_wrapper.address_ref().clone();
     let owner = sc_setup.owner.clone();

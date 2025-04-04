@@ -19,6 +19,7 @@ fn dex_create_pair_test() {
         tfn_test_staking::contract_obj,
         tfn_test_dex::contract_obj,
         tfn_nft_marketplace::contract_obj,
+        tfn_digital_identity::contract_obj,
     );
     let owner = sc_setup.owner.clone();
     // create pair - should fail since FRANCHISE1_GOVERNANCE_TOKEN_ID is not registered as base token
@@ -46,6 +47,7 @@ fn dex_liquidity_test() {
         tfn_test_staking::contract_obj,
         tfn_test_dex::contract_obj,
         tfn_nft_marketplace::contract_obj,
+        tfn_digital_identity::contract_obj,
     );
     let owner = sc_setup.owner.clone();
     let user = sc_setup.setup_new_user(1u64);
@@ -106,6 +108,7 @@ fn dex_swap_fixed_input_test() {
         tfn_test_staking::contract_obj,
         tfn_test_dex::contract_obj,
         tfn_nft_marketplace::contract_obj,
+        tfn_digital_identity::contract_obj,
     );
     let owner = sc_setup.owner.clone();
     let swap_base_amount = exp18(10);
@@ -162,6 +165,7 @@ fn dex_swap_fixed_output_test() {
         tfn_test_staking::contract_obj,
         tfn_test_dex::contract_obj,
         tfn_nft_marketplace::contract_obj,
+        tfn_digital_identity::contract_obj,
     );
     let owner = sc_setup.owner.clone();
     let token_amount_wanted = exp18(1);

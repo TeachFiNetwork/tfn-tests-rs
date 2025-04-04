@@ -17,5 +17,6 @@ fn init_test() {
         tfn_test_staking::contract_obj,
         tfn_test_dex::contract_obj,
         tfn_nft_marketplace::contract_obj,
+        tfn_digital_identity::contract_obj,
     );
 }

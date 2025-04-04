@@ -10,6 +10,7 @@ pub const TEST_DEX_WASM_PATH: &str = "../tfn-test-dex-rs/output/tfn-test-dex.was
 pub const TEST_LAUNCHPAD_WASM_PATH: &str = "../tfn-test-launchpad-rs/output/tfn-test-launchpad.wasm";
 pub const TEST_STAKING_WASM_PATH: &str = "../tfn-test-staking-rs/output/tfn-test-staking.wasm";
 pub const NFT_MARKETPLACE_WASM_PATH: &str = "../tfn-nft-marketplace-rs/output/tfn-nft-marketplace.wasm";
+pub const DIGITAL_IDENTITY_WASM_PATH: &str = "../tfn-digital-identity-rs/output/tfn-digital-identity.wasm";
 
 pub const DAO_GOVERNANCE_TOKEN_ID: &str = "LEARN-123456";
 pub const FRANCHISE0_GOVERNANCE_TOKEN_ID: &str = "FR0-123456";

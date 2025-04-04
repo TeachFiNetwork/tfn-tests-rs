@@ -19,6 +19,7 @@ fn dao_propose_new_launchpad_test() {
         tfn_test_staking::contract_obj,
         tfn_test_dex::contract_obj,
         tfn_nft_marketplace::contract_obj,
+        tfn_digital_identity::contract_obj,
     );
     let owner = sc_setup.owner.clone();
     // propose new launchpad
@@ -60,6 +61,7 @@ fn dao_propose_new_launchpad_and_vote_test() {
         tfn_test_staking::contract_obj,
         tfn_test_dex::contract_obj,
         tfn_nft_marketplace::contract_obj,
+        tfn_digital_identity::contract_obj,
     );
     let owner = sc_setup.owner.clone();
     let vote_amount = exp18(1);
@@ -114,6 +116,7 @@ fn dao_execute_new_launchpad_test() {
         tfn_test_staking::contract_obj,
         tfn_test_dex::contract_obj,
         tfn_nft_marketplace::contract_obj,
+        tfn_digital_identity::contract_obj,
     );
     let owner = sc_setup.owner.clone();
     let vote_amount = exp18(DAO_QUORUM);

@@ -17,6 +17,7 @@ use tfn_test_launchpad::TFNTestLaunchpadContract;
 use tfn_test_staking::TFNTestStakingContract;
 use tfn_test_dex::TFNTestDEXContract;
 use tfn_nft_marketplace::TFNNFTMarketplaceContract;
+use tfn_digital_identity::TFNDigitalIdentityContract;
 
 use crate::{consts::*, contracts_interactions::common::exp18};
 
@@ -33,6 +34,7 @@ pub struct TFNContractSetup<
     TFNTestStakingContractObjBuilder,
     TFNTestDEXContractObjBuilder,
     TFNNFTMarketplaceContractObjBuilder,
+    TFNDigitalIdentityContractObjBuilder,
 >
 where
     TFNDAOContractObjBuilder: 'static + Copy + Fn() -> tfn_dao::ContractObj<DebugApi>,
@@ -47,6 +49,7 @@ where
     TFNTestStakingContractObjBuilder: 'static + Copy + Fn() -> tfn_test_staking::ContractObj<DebugApi>,
     TFNTestDEXContractObjBuilder: 'static + Copy + Fn() -> tfn_test_dex::ContractObj<DebugApi>,
     TFNNFTMarketplaceContractObjBuilder: 'static + Copy + Fn() -> tfn_nft_marketplace::ContractObj<DebugApi>,
+    TFNDigitalIdentityContractObjBuilder: 'static + Copy + Fn() -> tfn_digital_identity::ContractObj<DebugApi>,
 {
     pub blockchain_wrapper: BlockchainStateWrapper,
     pub owner: Address,
@@ -62,6 +65,7 @@ where
     pub test_staking_wrapper: ContractObjWrapper<tfn_test_staking::ContractObj<DebugApi>, TFNTestStakingContractObjBuilder>,
     pub test_dex_wrapper: ContractObjWrapper<tfn_test_dex::ContractObj<DebugApi>, TFNTestDEXContractObjBuilder>,
     pub nft_marketplace_wrapper: ContractObjWrapper<tfn_nft_marketplace::ContractObj<DebugApi>, TFNNFTMarketplaceContractObjBuilder>,
+    pub digital_identity_wrapper: ContractObjWrapper<tfn_digital_identity::ContractObj<DebugApi>, TFNDigitalIdentityContractObjBuilder>,
 }
 
 impl<
@@ -77,6 +81,7 @@ impl<
     TFNTestStakingContractObjBuilder,
     TFNTestDEXContractObjBuilder,
     TFNNFTMarketplaceContractObjBuilder,
+    TFNDigitalIdentityContractObjBuilder,
 >
 TFNContractSetup<
     TFNDAOContractObjBuilder,
@@ -91,6 +96,7 @@ TFNContractSetup<
     TFNTestStakingContractObjBuilder,
     TFNTestDEXContractObjBuilder,
     TFNNFTMarketplaceContractObjBuilder,
+    TFNDigitalIdentityContractObjBuilder,
 >
 where
     TFNDAOContractObjBuilder: 'static + Copy + Fn() -> tfn_dao::ContractObj<DebugApi>,
@@ -105,6 +111,7 @@ where
     TFNTestStakingContractObjBuilder: 'static + Copy + Fn() -> tfn_test_staking::ContractObj<DebugApi>,
     TFNTestDEXContractObjBuilder: 'static + Copy + Fn() -> tfn_test_dex::ContractObj<DebugApi>,
     TFNNFTMarketplaceContractObjBuilder: 'static + Copy + Fn() -> tfn_nft_marketplace::ContractObj<DebugApi>,
+    TFNDigitalIdentityContractObjBuilder: 'static + Copy + Fn() -> tfn_digital_identity::ContractObj<DebugApi>,
 {
     pub fn new(
         dao_builder: TFNDAOContractObjBuilder,
@@ -119,6 +126,7 @@ where
         test_staking_builder: TFNTestStakingContractObjBuilder,
         test_dex_builder: TFNTestDEXContractObjBuilder,
         nft_marketplace_builder: TFNNFTMarketplaceContractObjBuilder,
+        digital_identity_builder: TFNDigitalIdentityContractObjBuilder,
     ) -> Self {
         let mut blockchain_wrapper = BlockchainStateWrapper::new();
         let big_zero = rust_biguint!(0u64);
@@ -222,6 +230,14 @@ where
             STAKING_WASM_PATH,
         );
 
+        // deploy digital identity
+        let digital_identity_wrapper = blockchain_wrapper.create_sc_account(
+            &big_zero,
+            Some(&owner_address),
+            digital_identity_builder,
+            DIGITAL_IDENTITY_WASM_PATH,
+        );
+
         // INITS
 
         // init DAO
@@ -313,6 +329,13 @@ where
             })
             .assert_ok();
 
+        // init digital identity
+        blockchain_wrapper
+            .execute_tx(&owner_address, &digital_identity_wrapper, &big_zero, |sc| {
+                sc.init()
+            })
+            .assert_ok();
+
         // ACTIVATIONS
 
         // activate DAO
@@ -326,6 +349,13 @@ where
                 managed_address!(template_employee_wrapper.address_ref()),
                 managed_address!(template_student_wrapper.address_ref()),
             );
+            sc.set_digital_identity_address(managed_address!(digital_identity_wrapper.address_ref()));
+            sc.set_state_active();
+        })
+        .assert_ok();
+
+        // activate platform
+        blockchain_wrapper.execute_tx(&owner_address, &platform_wrapper, &big_zero, |sc| {
             sc.set_state_active();
         })
         .assert_ok();
@@ -528,6 +558,7 @@ where
             test_staking_wrapper,
             test_dex_wrapper,
             nft_marketplace_wrapper,
+            digital_identity_wrapper,
         }
     }
 }

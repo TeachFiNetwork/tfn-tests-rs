@@ -19,6 +19,7 @@ fn dao_add_new_board_member_test() {
         tfn_test_staking::contract_obj,
         tfn_test_dex::contract_obj,
         tfn_nft_marketplace::contract_obj,
+        tfn_digital_identity::contract_obj,
     );
     let owner = sc_setup.owner.clone();
     let new_board_member = sc_setup.setup_new_user(1u64);
@@ -48,6 +49,7 @@ fn dao_add_member_and_change_board_quorum_test() {
         tfn_test_staking::contract_obj,
         tfn_test_dex::contract_obj,
         tfn_nft_marketplace::contract_obj,
+        tfn_digital_identity::contract_obj,
     );
     let owner = sc_setup.owner.clone();
     let new_board_member = sc_setup.setup_new_user(1u64);
@@ -78,6 +80,7 @@ fn dao_change_board_quorum_fail_test() {
         tfn_test_staking::contract_obj,
         tfn_test_dex::contract_obj,
         tfn_nft_marketplace::contract_obj,
+        tfn_digital_identity::contract_obj,
     );
     let owner = sc_setup.owner.clone();
     let new_quorum = 2;
@@ -103,6 +106,7 @@ fn dao_remove_last_board_member_fail_test() {
         tfn_test_staking::contract_obj,
         tfn_test_dex::contract_obj,
         tfn_nft_marketplace::contract_obj,
+        tfn_digital_identity::contract_obj,
     );
     let owner = sc_setup.owner.clone();
     // propose remove board member - should fail since we only have one board member (the owner)
@@ -125,6 +129,7 @@ fn dao_board_quorum_decrease_test() {
         tfn_test_staking::contract_obj,
         tfn_test_dex::contract_obj,
         tfn_nft_marketplace::contract_obj,
+        tfn_digital_identity::contract_obj,
     );
     let owner = sc_setup.owner.clone();
     let new_board_member = sc_setup.setup_new_user(1u64);
@@ -171,6 +176,7 @@ fn dao_add_voting_token_test() {
         tfn_test_staking::contract_obj,
         tfn_test_dex::contract_obj,
         tfn_nft_marketplace::contract_obj,
+        tfn_digital_identity::contract_obj,
     );
     let owner = sc_setup.owner.clone();
     let weight = exp18(2);
@@ -200,6 +206,7 @@ fn dao_remove_all_voting_tokens_test() {
         tfn_test_staking::contract_obj,
         tfn_test_dex::contract_obj,
         tfn_nft_marketplace::contract_obj,
+        tfn_digital_identity::contract_obj,
     );
     let owner = sc_setup.owner.clone();
     // propose remove the only voting token

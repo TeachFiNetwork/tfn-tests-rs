@@ -55,3 +55,6 @@ path = "../tfn-test-staking-rs"
 
 [dependencies.tfn-nft-marketplace]
 path = "../tfn-nft-marketplace-rs"
+
+[dependencies.tfn-digital-identity]
+path = "../tfn-digital-identity-rs"
