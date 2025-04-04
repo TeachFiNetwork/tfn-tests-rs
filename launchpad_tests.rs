@@ -31,6 +31,7 @@ fn launchpad_new_launchpad_test() {
     let launchpad_id = sc_setup.launchpad_new_launchpad(
         &dao_address,
         &owner,
+        0,
         true,
         FRANCHISE1_GOVERNANCE_TOKEN_ID,
         DAO_GOVERNANCE_TOKEN_ID,
@@ -95,6 +96,7 @@ fn launchpad_buy_launchpad_with_kyc_test() {
     let launchpad_id = sc_setup.launchpad_new_launchpad(
         &dao_address,
         &owner,
+        0,
         true,
         FRANCHISE1_GOVERNANCE_TOKEN_ID,
         DAO_GOVERNANCE_TOKEN_ID,
@@ -154,6 +156,7 @@ fn launchpad_cancel_test() {
     let launchpad_id = sc_setup.launchpad_new_launchpad(
         &dao_address,
         &owner,
+        0,
         true,
         FRANCHISE1_GOVERNANCE_TOKEN_ID,
         DAO_GOVERNANCE_TOKEN_ID,

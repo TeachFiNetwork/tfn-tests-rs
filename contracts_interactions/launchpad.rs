@@ -56,6 +56,7 @@ where
         &mut self,
         caller: &Address,
         owner: &Address,
+        identity_id: u64,
         kyc_enforced: bool,
         token: &str,
         payment_token: &str,
@@ -71,7 +72,7 @@ where
             .execute_tx(caller, &self.launchpad_wrapper, &rust_biguint!(0u64), |sc| {
                 launchpad_id = sc.new_launchpad(
                     managed_address!(owner),
-                    0, // debug
+                    identity_id,
                     kyc_enforced,
                     managed_token_id!(token),
                     managed_token_id!(payment_token),

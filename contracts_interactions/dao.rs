@@ -206,6 +206,7 @@ where
         caller: &Address,
         title: &str,
         description: &str,
+        identity_id: u64,
         kyc_enforced: bool,
         token: &str,
         payment_token: &str,
@@ -223,7 +224,7 @@ where
                     managed_buffer!(title.as_bytes()),
                     managed_buffer!(description.as_bytes()),
                     LaunchpadProposal{
-                        identity_id: 0, // debug
+                        identity_id,
                         kyc_enforced,
                         token: managed_token_id!(token),
                         payment_token: managed_token_id!(payment_token),
