@@ -1,13 +1,13 @@
 #![allow(clippy::too_many_arguments)]
 
-use multiversx_sc::types::Address;
+use multiversx_sc::types::{Address, ManagedVec};
 use multiversx_sc_scenario::{
     managed_address, managed_biguint, managed_buffer, managed_token_id, rust_biguint, testing_framework::*, DebugApi
 };
 
 use tfn_dao::{common::config::{ConfigModule as _, LaunchpadProposal}, TFNDAOContract};
 use tfn_dex::TFNDEXContract;
-use tfn_platform::{common::config::{ConfigModule as _, SubscriberDetails}, TFNPlatformContract};
+use tfn_platform::{common::config::ConfigModule as _, TFNPlatformContract};
 use tfn_franchise_dao::{common::config::ConfigModule, school::SchoolModule, TFNFranchiseDAOContract};
 use tfn_employee::TFNEmployeeContract;
 use tfn_student::TFNStudentContract;
@@ -369,6 +369,21 @@ where
 
         // LAUNCH A FRANCHISE
 
+        // add franchise identity
+        blockchain_wrapper.execute_tx(&owner_address, &digital_identity_wrapper, &big_zero, |sc| {
+            sc.add_identity(
+                true,
+                managed_biguint!(0),
+                0,
+                managed_address!(&owner_address),
+                managed_buffer!(b"Launchpad 0"),
+                managed_buffer!(b""),
+                managed_buffer!(b""),
+                ManagedVec::new(),
+            );
+        })
+        .assert_ok();
+
         let mut franchise_address = Address::zero();
         let mut employee_address = Address::zero();
         let mut student_address = Address::zero();
@@ -386,16 +401,7 @@ where
                 managed_buffer!(b"title"),
                 managed_buffer!(b"description"),
                 LaunchpadProposal{
-                    details: SubscriberDetails {
-                        name: managed_buffer!(b""),
-                        description: managed_buffer!(b""),
-                        logo: managed_buffer!(b""),
-                        card: managed_buffer!(b""),
-                        website: managed_buffer!(b""),
-                        email: managed_buffer!(b""),
-                        twitter: managed_buffer!(b""),
-                        telegram: managed_buffer!(b""),
-                    },
+                    identity_id: 0, // debug
                     kyc_enforced: false,
                     token: managed_token_id!(FRANCHISE0_GOVERNANCE_TOKEN_ID),
                     payment_token: managed_token_id!(DAO_GOVERNANCE_TOKEN_ID),

@@ -1,12 +1,11 @@
 #![allow(clippy::too_many_arguments)]
 
 use multiversx_sc::types::Address;
-use multiversx_sc_scenario::{managed_address, managed_buffer, managed_token_id, num_bigint, rust_biguint, DebugApi};
+use multiversx_sc_scenario::{managed_address, managed_token_id, num_bigint, rust_biguint, DebugApi};
 
 use crate::{consts::ISSUE_TOKEN_PRICE, contracts_setup::TFNContractSetup};
 
 use tfn_launchpad::{common::config::*, *};
-use tfn_platform::common::config::SubscriberDetails;
 
 impl<
     TFNDAOContractObjBuilder,
@@ -72,16 +71,7 @@ where
             .execute_tx(caller, &self.launchpad_wrapper, &rust_biguint!(0u64), |sc| {
                 launchpad_id = sc.new_launchpad(
                     managed_address!(owner),
-                    SubscriberDetails {
-                        name: managed_buffer!(b""),
-                        description: managed_buffer!(b""),
-                        logo: managed_buffer!(b""),
-                        card: managed_buffer!(b""),
-                        website: managed_buffer!(b""),
-                        email: managed_buffer!(b""),
-                        twitter: managed_buffer!(b""),
-                        telegram: managed_buffer!(b""),
-                    },
+                    0, // debug
                     kyc_enforced,
                     managed_token_id!(token),
                     managed_token_id!(payment_token),
