@@ -52,7 +52,6 @@ where
         caller: &Address,
         token: &str,
         base_token: &str,
-        decimals: u8,
         lp_fee: u64,
         owner_fee: u64,
         err: Option<&[u8]>,
@@ -62,7 +61,6 @@ where
                 sc.create_pair(
                     managed_token_id!(base_token),
                     managed_token_id!(token),
-                    decimals,
                     lp_fee,
                     owner_fee,
                 );
