@@ -21,9 +21,9 @@ fn dex_create_pair_test() {
     );
     let owner = sc_setup.owner.clone();
     // create pair - should fail since FRANCHISE1_GOVERNANCE_TOKEN_ID is not registered as base token
-    sc_setup.dex_create_pair( &owner, DAO_GOVERNANCE_TOKEN_ID, FRANCHISE1_GOVERNANCE_TOKEN_ID, 18, Some(ERROR_WRONG_BASE_TOKEN));
+    sc_setup.dex_create_pair( &owner, DAO_GOVERNANCE_TOKEN_ID, FRANCHISE1_GOVERNANCE_TOKEN_ID, Some(ERROR_WRONG_BASE_TOKEN));
     // create pair
-    sc_setup.dex_create_pair( &owner, FRANCHISE1_GOVERNANCE_TOKEN_ID, DAO_GOVERNANCE_TOKEN_ID, 18, None);
+    sc_setup.dex_create_pair( &owner, FRANCHISE1_GOVERNANCE_TOKEN_ID, DAO_GOVERNANCE_TOKEN_ID, None);
     // check pair created
     sc_setup.dex_check_pairs_count(1);
     sc_setup.dex_pair_exists_by_tickers(FRANCHISE1_GOVERNANCE_TOKEN_ID, DAO_GOVERNANCE_TOKEN_ID);
@@ -54,7 +54,7 @@ fn dex_liquidity_test() {
     sc_setup.blockchain_wrapper.set_esdt_balance(&user, DAO_GOVERNANCE_TOKEN_ID.as_bytes(), &base_token_amount);
     sc_setup.blockchain_wrapper.set_esdt_balance(&user, FRANCHISE1_GOVERNANCE_TOKEN_ID.as_bytes(), &token_amount);
     // create pair
-    sc_setup.dex_create_pair( &owner, FRANCHISE1_GOVERNANCE_TOKEN_ID, DAO_GOVERNANCE_TOKEN_ID, 18, None);
+    sc_setup.dex_create_pair( &owner, FRANCHISE1_GOVERNANCE_TOKEN_ID, DAO_GOVERNANCE_TOKEN_ID, None);
     // add initial liquidity should fail - only owner can add initial liquidity and set the price
     sc_setup.dex_add_liquidity(
         &user,
@@ -111,7 +111,7 @@ fn dex_swap_fixed_input_test() {
     sc_setup.blockchain_wrapper.set_esdt_balance(&owner, DAO_GOVERNANCE_TOKEN_ID.as_bytes(), &(&base_token_amount + &swap_base_amount));
     sc_setup.blockchain_wrapper.set_esdt_balance(&owner, FRANCHISE1_GOVERNANCE_TOKEN_ID.as_bytes(), &token_amount);
     // create pair
-    sc_setup.dex_create_pair( &owner, FRANCHISE1_GOVERNANCE_TOKEN_ID, DAO_GOVERNANCE_TOKEN_ID, 18, None);
+    sc_setup.dex_create_pair( &owner, FRANCHISE1_GOVERNANCE_TOKEN_ID, DAO_GOVERNANCE_TOKEN_ID, None);
     // add initial liquidity
     sc_setup.dex_add_liquidity(
         &owner,
@@ -166,7 +166,7 @@ fn dex_swap_fixed_output_test() {
     sc_setup.blockchain_wrapper.set_esdt_balance(&owner, DAO_GOVERNANCE_TOKEN_ID.as_bytes(), &base_token_amount);
     sc_setup.blockchain_wrapper.set_esdt_balance(&owner, FRANCHISE1_GOVERNANCE_TOKEN_ID.as_bytes(), &token_amount);
     // create pair
-    sc_setup.dex_create_pair( &owner, FRANCHISE1_GOVERNANCE_TOKEN_ID, DAO_GOVERNANCE_TOKEN_ID, 18, None);
+    sc_setup.dex_create_pair( &owner, FRANCHISE1_GOVERNANCE_TOKEN_ID, DAO_GOVERNANCE_TOKEN_ID, None);
     // add initial liquidity
     sc_setup.dex_add_liquidity(
         &owner,

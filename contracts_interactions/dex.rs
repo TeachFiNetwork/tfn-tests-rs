@@ -50,7 +50,6 @@ where
         caller: &Address,
         token: &str,
         base_token: &str,
-        decimals: u8,
         err: Option<&[u8]>,
     ) {
         let result = self.blockchain_wrapper
@@ -58,7 +57,6 @@ where
                 sc.create_pair(
                     managed_token_id!(base_token),
                     managed_token_id!(token),
-                    decimals,
                 );
             });
         self.handle_error(&result, err);
