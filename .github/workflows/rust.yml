@@ -17,6 +17,8 @@ jobs:
     steps:
     - name: Checkout Tests
       uses: actions/checkout@v4
+      with:
+        repository: TeachFiNetwork/tfn-tests-rs
 
     - name: Checkout DAO
       uses: actions/checkout@v4
@@ -74,4 +76,6 @@ jobs:
         repository: TeachFiNetwork/tfn-nft-marketplace-rs
 
     - name: Run tests
-      run: cargo test --verbose
+      run: |
+        cd tfn-tests-rs
+        cargo test --verbose
