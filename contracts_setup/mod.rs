@@ -262,7 +262,7 @@ where
             })
             .assert_ok();
         
-        // init franchise DAO
+        // init template franchise DAO
         blockchain_wrapper
             .execute_tx(&owner_address, &template_franchise_dao_wrapper, &big_zero, |sc| {
                 sc.init(
@@ -468,7 +468,7 @@ where
         let nft_marketplace_wrapper = blockchain_wrapper.create_sc_account_fixed_address(
             &nft_marketplace_address,
             &big_zero,
-            Some(&franchise_address),
+            Some(platform_wrapper.address_ref()),
             nft_marketplace_builder,
             NFT_MARKETPLACE_WASM_PATH,
         );
@@ -477,7 +477,7 @@ where
         let test_launchpad_wrapper = blockchain_wrapper.create_sc_account_fixed_address(
             &test_launchpad_address,
             &big_zero,
-            Some(&franchise_address),
+            Some(platform_wrapper.address_ref()),
             test_launchpad_builder,
             TEST_LAUNCHPAD_WASM_PATH,
         );
@@ -486,7 +486,7 @@ where
         let test_dex_wrapper = blockchain_wrapper.create_sc_account_fixed_address(
             &test_dex_address,
             &big_zero,
-            Some(&franchise_address),
+            Some(platform_wrapper.address_ref()),
             test_dex_builder,
             TEST_DEX_WASM_PATH,
         );
@@ -495,7 +495,7 @@ where
         let test_staking_wrapper = blockchain_wrapper.create_sc_account_fixed_address(
             &test_staking_address,
             &big_zero,
-            Some(&franchise_address),
+            Some(platform_wrapper.address_ref()),
             test_staking_builder,
             TEST_STAKING_WASM_PATH,
         );
