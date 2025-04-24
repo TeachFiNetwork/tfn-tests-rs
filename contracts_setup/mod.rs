@@ -114,7 +114,7 @@ where
     ) -> Self {
         let mut blockchain_wrapper = BlockchainStateWrapper::new();
         let big_zero = rust_biguint!(0u64);
-        let owner_address = blockchain_wrapper.create_user_account(&big_zero);
+        let owner_address = blockchain_wrapper.create_user_account(&rust_biguint!(ISSUE_TOKEN_PRICE));
     
         // DEPLOYS
 
@@ -377,7 +377,7 @@ where
         })
         .assert_ok();
         blockchain_wrapper.set_block_timestamp(DAO_VOTING_PERIOD + 1 + launchpad_duration + 1);
-        blockchain_wrapper.execute_tx(&owner_address, &launchpad_wrapper, &rust_biguint!(0u64), |sc| {
+        blockchain_wrapper.execute_tx(&owner_address, &launchpad_wrapper, &rust_biguint!(ISSUE_TOKEN_PRICE), |sc| {
             launchpad_id = sc.last_launchpad_id().get() - 1;
             franchise_address = sc.deploy_franchise(launchpad_id).to_address();
         })

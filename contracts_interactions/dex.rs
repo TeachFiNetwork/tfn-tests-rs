@@ -1,7 +1,7 @@
 use multiversx_sc::types::Address;
 use multiversx_sc_scenario::{imports::TxTokenTransfer, managed_token_id, num_bigint, rust_biguint, DebugApi};
 
-use crate::contracts_setup::TFNContractSetup;
+use crate::{consts::ISSUE_TOKEN_PRICE, contracts_setup::TFNContractSetup};
 use tfn_dex::{*, swap::*, liquidity::*, common::config::*};
 
 // use super::common::DEFAULT_ROLES;
@@ -53,7 +53,7 @@ where
         err: Option<&[u8]>,
     ) {
         let result = self.blockchain_wrapper
-            .execute_tx(caller, &self.dex_wrapper, &rust_biguint!(0u64), |sc| {
+            .execute_tx(caller, &self.dex_wrapper, &rust_biguint!(ISSUE_TOKEN_PRICE), |sc| {
                 sc.create_pair(
                     managed_token_id!(base_token),
                     managed_token_id!(token),
