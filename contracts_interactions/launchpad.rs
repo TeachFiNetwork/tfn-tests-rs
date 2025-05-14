@@ -2,9 +2,10 @@
 
 use multiversx_sc::types::{Address, ManagedVec};
 use multiversx_sc_scenario::{managed_address, managed_biguint, managed_buffer, managed_token_id, num_bigint, rust_biguint, DebugApi};
+use tfn_dex::common::consts::TOKEN_ISSUE_COST;
 use tfn_digital_identity::common::config::Identity;
 
-use crate::{consts::ISSUE_TOKEN_PRICE, contracts_setup::TFNContractSetup};
+use crate::contracts_setup::TFNContractSetup;
 
 use tfn_launchpad::{common::config::*, *};
 
@@ -100,7 +101,7 @@ where
     ) -> Address {
         let mut franchise_address = Address::zero();
         let result = self.blockchain_wrapper
-            .execute_tx(caller, &self.launchpad_wrapper, &rust_biguint!(ISSUE_TOKEN_PRICE), |sc| {
+            .execute_tx(caller, &self.launchpad_wrapper, &rust_biguint!(TOKEN_ISSUE_COST), |sc| {
                 let new_address = sc.deploy_franchise(launchpad_id);
                 franchise_address = Address::new(new_address.to_byte_array());
             });

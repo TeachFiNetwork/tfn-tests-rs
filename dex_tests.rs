@@ -1,6 +1,6 @@
 use multiversx_sc_scenario::{rust_biguint, DebugApi};
 
-use tfn_dex::common::{consts::MAX_PERCENT, errors::*};
+use tfn_dex::common::{consts::{MAX_PERCENT, TOKEN_ISSUE_COST}, errors::*};
 use crate::{consts::*, contracts_interactions::common::*, contracts_setup::TFNContractSetup};
 
 #[test]
@@ -20,7 +20,7 @@ fn dex_create_pair_test() {
         tfn_digital_identity::contract_obj,
     );
     let owner = sc_setup.owner.clone();
-    sc_setup.blockchain_wrapper.set_egld_balance(&owner, &rust_biguint!(ISSUE_TOKEN_PRICE));
+    sc_setup.blockchain_wrapper.set_egld_balance(&owner, &rust_biguint!(TOKEN_ISSUE_COST));
     // create pair - should fail since FRANCHISE1_GOVERNANCE_TOKEN_ID is not registered as base token
     sc_setup.dex_create_pair( &owner, DAO_GOVERNANCE_TOKEN_ID, FRANCHISE1_GOVERNANCE_TOKEN_ID, Some(ERROR_WRONG_BASE_TOKEN));
     // create pair
@@ -47,7 +47,7 @@ fn dex_liquidity_test() {
         tfn_digital_identity::contract_obj,
     );
     let owner = sc_setup.owner.clone();
-    sc_setup.blockchain_wrapper.set_egld_balance(&owner, &rust_biguint!(ISSUE_TOKEN_PRICE));
+    sc_setup.blockchain_wrapper.set_egld_balance(&owner, &rust_biguint!(TOKEN_ISSUE_COST));
     let user = sc_setup.setup_new_user(1u64);
     let token_amount = exp18(100);
     let base_token_amount = exp18(1000);
@@ -107,7 +107,7 @@ fn dex_swap_fixed_input_test() {
         tfn_digital_identity::contract_obj,
     );
     let owner = sc_setup.owner.clone();
-    sc_setup.blockchain_wrapper.set_egld_balance(&owner, &rust_biguint!(ISSUE_TOKEN_PRICE));
+    sc_setup.blockchain_wrapper.set_egld_balance(&owner, &rust_biguint!(TOKEN_ISSUE_COST));
     let swap_base_amount = exp18(10);
     let token_amount = exp18(100);
     let base_token_amount = exp18(1000);
@@ -163,7 +163,7 @@ fn dex_swap_fixed_output_test() {
         tfn_digital_identity::contract_obj,
     );
     let owner = sc_setup.owner.clone();
-    sc_setup.blockchain_wrapper.set_egld_balance(&owner, &rust_biguint!(ISSUE_TOKEN_PRICE));
+    sc_setup.blockchain_wrapper.set_egld_balance(&owner, &rust_biguint!(TOKEN_ISSUE_COST));
     let token_amount_wanted = exp18(1);
     let token_amount = exp18(100);
     let base_token_amount = exp18(1000);

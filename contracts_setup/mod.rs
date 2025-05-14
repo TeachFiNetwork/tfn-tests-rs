@@ -6,7 +6,7 @@ use multiversx_sc_scenario::{
 };
 
 use tfn_dao::{common::config::{ConfigModule as _, LaunchpadProposal}, TFNDAOContract};
-use tfn_dex::TFNDEXContract;
+use tfn_dex::{common::consts::TOKEN_ISSUE_COST, TFNDEXContract};
 use tfn_platform::{common::config::ConfigModule as _, TFNPlatformContract};
 use tfn_franchise_dao::{common::config::ConfigModule, school::SchoolModule, TFNFranchiseDAOContract};
 use tfn_launchpad::{TFNLaunchpadContract, common::config::ConfigModule as _};
@@ -114,7 +114,7 @@ where
     ) -> Self {
         let mut blockchain_wrapper = BlockchainStateWrapper::new();
         let big_zero = rust_biguint!(0u64);
-        let owner_address = blockchain_wrapper.create_user_account(&rust_biguint!(ISSUE_TOKEN_PRICE));
+        let owner_address = blockchain_wrapper.create_user_account(&rust_biguint!(TOKEN_ISSUE_COST));
     
         // DEPLOYS
 
@@ -377,7 +377,7 @@ where
         })
         .assert_ok();
         blockchain_wrapper.set_block_timestamp(DAO_VOTING_PERIOD + 1 + launchpad_duration + 1);
-        blockchain_wrapper.execute_tx(&owner_address, &launchpad_wrapper, &rust_biguint!(ISSUE_TOKEN_PRICE), |sc| {
+        blockchain_wrapper.execute_tx(&owner_address, &launchpad_wrapper, &rust_biguint!(TOKEN_ISSUE_COST), |sc| {
             launchpad_id = sc.last_launchpad_id().get() - 1;
             franchise_address = sc.deploy_franchise(launchpad_id).to_address();
         })
